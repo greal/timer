@@ -11,8 +11,8 @@
 			<span class="Timer__name" v-text="name"></span>
 			<span class="Timer__value" v-text="begin"></span>
 			<span class="BtnAudio">
-				<input class="js-Timer-song" type="checkbox" value="${songId}" id="AudioCheck-${songId}" name="audioCheck_${songId}">
-				<label for="AudioCheck-${songId}">{{ song.title }}</label>
+				<input v-model="song.id" type="checkbox" :id="`AudioCheck-${song.id}`" :name="`audioCheck_${song.id}`">
+				<label :for="`AudioCheck-${song.id}`">{{ song.title }}</label>
 			</span>
 			<button @click="edit" class="Btn Btn--link Btn--edit">
 				<span class="Icon Icon--edit"></span>
@@ -39,6 +39,7 @@
 		created() {
 			this.counter = '00:00:00';
 			this.begin = '00:00:00';
+			this.id = this.params.id;
 			this.name = this.params.name;
 			this.song = this.params.song;
 		},
@@ -51,12 +52,17 @@
 		data: () => ({
 			counter: '--:--:--',
 			begin: '--:--:--',
+			id: null,
 			name: '',
 			song: null,
 		}),
 		methods: {
 			edit() {},
-			remove() {},
+			remove() {
+				if (confirm('Вы действительно хотите удалить таймер?')) {
+					this.$root.$emit('removeTimer', this.id);
+				}
+			},
 			toggle() {},
 			reset() {},
 		}

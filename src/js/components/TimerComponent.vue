@@ -35,6 +35,11 @@
 				// console.log(payload);
 			});
 
+			// Удалить таймер
+			this.$root.$on('removeTimer', () => {
+				// console.log(payload);
+			});
+
 
 			// Инициализируем сохраненные таймеры
 			this.timers = this.$root.$store.get('timers', []);

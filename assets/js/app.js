@@ -152,6 +152,9 @@ __webpack_require__.r(__webpack_exports__);
     }); // Остановить прослушивание
 
     this.$root.$on('pauseSong', function () {// console.log(payload);
+    }); // Удалить таймер
+
+    this.$root.$on('removeTimer', function () {// console.log(payload);
     }); // Инициализируем сохраненные таймеры
 
     this.timers = this.$root.$store.get('timers', []); // Установка таймера по умолчанию, если нет таймеров
@@ -273,6 +276,7 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {
     this.counter = '00:00:00';
     this.begin = '00:00:00';
+    this.id = this.params.id;
     this.name = this.params.name;
     this.song = this.params.song;
   },
@@ -286,13 +290,18 @@ __webpack_require__.r(__webpack_exports__);
     return {
       counter: '--:--:--',
       begin: '--:--:--',
+      id: null,
       name: '',
       song: null
     };
   },
   methods: {
     edit: function edit() {},
-    remove: function remove() {},
+    remove: function remove() {
+      if (confirm('Вы действительно хотите удалить таймер?')) {
+        this.$root.$emit('removeTimer', this.id);
+      }
+    },
     toggle: function toggle() {},
     reset: function reset() {}
   }
@@ -1125,16 +1134,50 @@ var render = function() {
         _vm._v(" "),
         _c("span", { staticClass: "BtnAudio" }, [
           _c("input", {
-            staticClass: "js-Timer-song",
+            directives: [
+              {
+                name: "model",
+                rawName: "v-model",
+                value: _vm.song.id,
+                expression: "song.id"
+              }
+            ],
             attrs: {
               type: "checkbox",
-              value: "${songId}",
-              id: "AudioCheck-${songId}",
-              name: "audioCheck_${songId}"
+              id: "AudioCheck-" + _vm.song.id,
+              name: "audioCheck_" + _vm.song.id
+            },
+            domProps: {
+              checked: Array.isArray(_vm.song.id)
+                ? _vm._i(_vm.song.id, null) > -1
+                : _vm.song.id
+            },
+            on: {
+              change: function($event) {
+                var $$a = _vm.song.id,
+                  $$el = $event.target,
+                  $$c = $$el.checked ? true : false
+                if (Array.isArray($$a)) {
+                  var $$v = null,
+                    $$i = _vm._i($$a, $$v)
+                  if ($$el.checked) {
+                    $$i < 0 && _vm.$set(_vm.song, "id", $$a.concat([$$v]))
+                  } else {
+                    $$i > -1 &&
+                      _vm.$set(
+                        _vm.song,
+                        "id",
+                        $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                      )
+                  }
+                } else {
+                  _vm.$set(_vm.song, "id", $$c)
+                }
+              }
             }
           }),
           _vm._v(" "),
-          _c("label", { attrs: { for: "AudioCheck-${songId}" } }, [
+          _c("label", { attrs: { for: "AudioCheck-" + _vm.song.id } }, [
             _vm._v(_vm._s(_vm.song.title))
           ])
         ]),
