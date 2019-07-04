@@ -7,7 +7,7 @@
 		<div class="Timer__footer">
 			<a @click.prevent="openModal()" class="Btn Btn--default js-Modal-add" href="#"><span class="Icon Icon--add"></span> Добавить таймер</a>
 		</div>
-		<modal v-show="isShowModal" :songs="songs" :params="defaultParams"></modal>
+		<modal v-show="isShowModal" :songs="songs" :params="modalParams"></modal>
 	</div>
 </template>
 
@@ -20,7 +20,12 @@
 		name: "TimerComponent",
 		components: { TimerItem, Modal },
 		created() {
-			// Закрыть окно заявки
+			// Сохранить таймер
+			this.$root.$on('saveTimer', (data) => {
+				this.add(data);
+			});
+
+			// Закрыть окно
 			this.$root.$on('closeModal', () => {
 				this.isShowModal = false
 			});
@@ -40,8 +45,7 @@
 				// console.log(payload);
 			});
 
-
-			// Инициализируем сохраненные таймеры
+			// Получаем сохраненные таймеры
 			this.timers = this.$root.$store.get('timers', []);
 
 			// Установка таймера по умолчанию, если нет таймеров
@@ -100,14 +104,21 @@
 				passed: 0, // Прошло секунд
 			},
 
+			modalParams: null,
+
+
 			timers: []
 		}),
 		methods: {
-			openModal() {
+
+			openModal(params) {
+				console.log(params);
 				this.isShowModal = true;
+				this.modalParams = !!params ? params : this.defaultParams;
 			},
-			add() {
-				console.log();
+
+			add(data) {
+				console.log(data);
 			}
 		}
 	}

@@ -32,7 +32,7 @@
 </template>
 
 <script>
-	import { AdjustingInterval } from '../functions';
+	// import { AdjustingInterval } from '../functions';
 
 	export default {
 		name: "TimerItemComponent",
