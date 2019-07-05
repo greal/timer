@@ -24,6 +24,10 @@ mix.disableNotifications();
 if (mix.inProduction()) {
 	mix.version();
 } else {
+/*	mix.version().webpackConfig({
+		devtool: 'cheap-module-source-map'
+	});
+*/
 	// https://browsersync.io/docs/options
 	/*mix.browserSync({
 		proxy: 'timer-vue.local'

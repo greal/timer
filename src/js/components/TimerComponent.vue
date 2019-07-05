@@ -7,7 +7,7 @@
 		<div class="Timer__footer">
 			<a @click.prevent="openModal()" class="Btn Btn--default js-Modal-add" href="#"><span class="Icon Icon--add"></span> Добавить таймер</a>
 		</div>
-		<modal v-show="isShowModal" :songs="songs" :params="modalParams"></modal>
+		<modal v-show="isShowModal" v-bind='{ songs, params: modalParams }'></modal>
 	</div>
 </template>
 
@@ -24,6 +24,13 @@
 			this.$root.$on('saveTimer', (data) => {
 				this.add(data);
 			});
+
+			// Открыть окно
+			this.$root.$on('openModal', (payload) => {
+				// this.isShowModal = false
+				this.openModal(payload);
+			});
+
 
 			// Закрыть окно
 			this.$root.$on('closeModal', () => {
@@ -112,9 +119,8 @@
 		methods: {
 
 			openModal(params) {
-				console.log(params);
-				this.isShowModal = true;
 				this.modalParams = !!params ? params : this.defaultParams;
+				this.isShowModal = true;
 			},
 
 			add(data) {

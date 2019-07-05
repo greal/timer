@@ -1,3 +1,6 @@
+const moment = require("moment");
+require("moment-duration-format");
+
 /**
  * Генератор Id
  *
@@ -23,7 +26,7 @@ export function IDGenerator() {
 
         return Number(id);
     }
-};
+}
 
 /**
  * Саморегулирующийся интервал для учета дрейфа
@@ -65,6 +68,33 @@ export function AdjustingInterval(workFunc, id, interval, errorFunc) {
             timeout = setTimeout(step, Math.max(0, that.interval - drift));
         }
     }
-};
+}
 
-export default { IDGenerator, AdjustingInterval };
+/**
+ * Преобразовать строку времени 00:00:00 в массив [0, 0, 0]
+ *
+ * @param value
+ * @returns {number[]}
+ */
+export function timeStr2Array(value) {
+    return moment
+        .duration(value, 'seconds')
+        .format('hh:mm:ss', { trim: false })
+        .split(':')
+        .map(Number);
+}
+
+/**
+ * Преобразовать секунды в 00:00:00
+ *
+ * @param seconds
+ * @returns {*}
+ */
+export function timeSecond2Human(seconds) {
+    let duration = moment.duration(seconds, 'seconds');
+    return duration.format('hh:mm:ss', {
+        trim: false
+    });
+}
+
+export default { IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human };

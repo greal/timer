@@ -9,6 +9,7 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../functions */ "./src/js/functions.js");
 //
 //
 //
@@ -58,47 +59,29 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-
-__webpack_require__(/*! moment-duration-format */ "./node_modules/moment-duration-format/lib/moment-duration-format.js");
+// const moment = require("moment");
+// require("moment-duration-format");
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "ModalComponent",
   props: {
-    songs: {
-      type: Array,
-      required: true
-    },
-    params: {
-      type: Object,
-      "default": function _default() {
-        return {
-          name: '',
-          id: null,
-          songId: null,
-          hour: 0,
-          minute: 10,
-          second: 0
-        };
-      }
-    }
+    songs: Array,
+    params: Object
   },
-  created: function created() {
-    console.log(this.params);
-
-    if (this.params) {
-      var timeFormat = moment.duration(this.params.begin, 'seconds').format('hh:mm:ss', {
-        trim: false
-      }).split(':').map(Number);
-      this.id = this.params.id;
-      this.hour = timeFormat[0];
-      this.minute = timeFormat[1];
-      this.second = timeFormat[2];
-      this.songId = !!this.params.song ? this.params.song.id : this.songs[0].id;
-      this.name = this.params.name;
-    }
+  created: function created() {// console.log(this.params);
   },
   watch: {
+    params: function params(value) {
+      if (value) {
+        var timeFormat = Object(_functions__WEBPACK_IMPORTED_MODULE_0__["timeStr2Array"])(value.begin);
+        this.id = value.id;
+        this.hour = timeFormat[0];
+        this.minute = timeFormat[1];
+        this.second = timeFormat[2];
+        this.songId = !!value.song ? value.song.id : this.songs[0].id;
+        this.name = value.name;
+      }
+    },
     songId: function songId() {
       // console.log(value);
       this.$root.$emit('pauseSong');
@@ -173,6 +156,11 @@ __webpack_require__.r(__webpack_exports__);
     // Сохранить таймер
     this.$root.$on('saveTimer', function (data) {
       _this.add(data);
+    }); // Открыть окно
+
+    this.$root.$on('openModal', function (payload) {
+      // this.isShowModal = false
+      _this.openModal(payload);
     }); // Закрыть окно
 
     this.$root.$on('closeModal', function () {
@@ -250,9 +238,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     openModal: function openModal(params) {
-      console.log(params);
-      this.isShowModal = true;
       this.modalParams = !!params ? params : this.defaultParams;
+      this.isShowModal = true;
     },
     add: function add(data) {
       console.log(data);
@@ -271,6 +258,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../functions */ "./src/js/functions.js");
 //
 //
 //
@@ -305,32 +293,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 // import { AdjustingInterval } from '../functions';
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TimerItemComponent",
   created: function created() {
-    this.counter = '00:00:00';
-    this.begin = '00:00:00';
+    this.counter = Object(_functions__WEBPACK_IMPORTED_MODULE_0__["timeSecond2Human"])(this.params.begin);
+    this.begin = this.params.begin;
     this.id = this.params.id;
     this.name = this.params.name;
     this.song = this.params.song;
   },
   props: {
-    params: {
-      type: Object,
-      required: true
-    }
+    params: Object
   },
   data: function data() {
     return {
       counter: '--:--:--',
-      begin: '--:--:--',
+      begin: 0,
       id: null,
       name: '',
       song: null
     };
   },
   methods: {
-    edit: function edit() {},
+    edit: function edit(data) {
+      this.$root.$emit('openModal', data);
+    },
     remove: function remove() {
       if (confirm('Вы действительно хотите удалить таймер?')) {
         this.$root.$emit('removeTimer', this.id);
@@ -20509,17 +20497,24 @@ var render = function() {
         )
       ]),
       _vm._v(" "),
-      _c("modal", {
-        directives: [
+      _c(
+        "modal",
+        _vm._b(
           {
-            name: "show",
-            rawName: "v-show",
-            value: _vm.isShowModal,
-            expression: "isShowModal"
-          }
-        ],
-        attrs: { songs: _vm.songs, params: _vm.modalParams }
-      })
+            directives: [
+              {
+                name: "show",
+                rawName: "v-show",
+                value: _vm.isShowModal,
+                expression: "isShowModal"
+              }
+            ]
+          },
+          "modal",
+          { songs: _vm.songs, params: _vm.modalParams },
+          false
+        )
+      )
     ],
     2
   )
@@ -20546,121 +20541,121 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c(
-    "div",
-    { staticClass: "Timer__item", attrs: { "data-id": "${id}" } },
-    [
-      _c("div", { staticClass: "Timer__row" }, [
-        _c("div", {
-          staticClass: "Timer__counter js-Timer-counter",
-          domProps: { textContent: _vm._s(_vm.counter) }
-        }),
-        _vm._v(" "),
-        _c("div", { staticClass: "Timer__controls" }, [
-          _c(
-            "button",
-            { staticClass: "Btn Btn--green", on: { click: _vm.toggle } },
-            [_vm._v("Старт")]
-          ),
-          _vm._v(" "),
-          _c(
-            "button",
-            {
-              staticClass: "Btn Btn--default",
-              attrs: { disabled: "" },
-              on: { click: _vm.reset }
-            },
-            [_vm._v("Сброс")]
-          )
-        ])
-      ]),
+  return _c("div", { staticClass: "Timer__item" }, [
+    _c("div", { staticClass: "Timer__row" }, [
+      _c("div", {
+        staticClass: "Timer__counter js-Timer-counter",
+        domProps: { textContent: _vm._s(_vm.counter) }
+      }),
       _vm._v(" "),
-      _c("div", { staticClass: "Timer__row Timer__row--info" }, [
-        _c("span", {
-          staticClass: "Timer__name",
-          domProps: { textContent: _vm._s(_vm.name) }
-        }),
-        _vm._v(" "),
-        _c("span", {
-          staticClass: "Timer__value",
-          domProps: { textContent: _vm._s(_vm.begin) }
-        }),
-        _vm._v(" "),
-        _c("span", { staticClass: "BtnAudio" }, [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.song.id,
-                expression: "song.id"
-              }
-            ],
-            attrs: {
-              type: "checkbox",
-              id: "AudioCheck-" + _vm.song.id,
-              name: "audioCheck_" + _vm.song.id
-            },
-            domProps: {
-              checked: Array.isArray(_vm.song.id)
-                ? _vm._i(_vm.song.id, null) > -1
-                : _vm.song.id
-            },
-            on: {
-              change: function($event) {
-                var $$a = _vm.song.id,
-                  $$el = $event.target,
-                  $$c = $$el.checked ? true : false
-                if (Array.isArray($$a)) {
-                  var $$v = null,
-                    $$i = _vm._i($$a, $$v)
-                  if ($$el.checked) {
-                    $$i < 0 && _vm.$set(_vm.song, "id", $$a.concat([$$v]))
-                  } else {
-                    $$i > -1 &&
-                      _vm.$set(
-                        _vm.song,
-                        "id",
-                        $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                      )
-                  }
-                } else {
-                  _vm.$set(_vm.song, "id", $$c)
-                }
-              }
-            }
-          }),
-          _vm._v(" "),
-          _c("label", { attrs: { for: "AudioCheck-" + _vm.song.id } }, [
-            _vm._v(_vm._s(_vm.song.title))
-          ])
-        ]),
-        _vm._v(" "),
+      _c("div", { staticClass: "Timer__controls" }, [
         _c(
           "button",
-          { staticClass: "Btn Btn--link Btn--edit", on: { click: _vm.edit } },
-          [
-            _c("span", { staticClass: "Icon Icon--edit" }),
-            _vm._v("\n\t\t\tРедактировать\n\t\t")
-          ]
+          { staticClass: "Btn Btn--green", on: { click: _vm.toggle } },
+          [_vm._v("Старт")]
         ),
         _vm._v(" "),
         _c(
           "button",
           {
-            staticClass: "Btn Btn--link Btn--remove",
-            on: { click: _vm.remove }
+            staticClass: "Btn Btn--default",
+            attrs: { disabled: "" },
+            on: { click: _vm.reset }
           },
-          [
-            _c("span", { staticClass: "Icon Icon--remove" }),
-            _vm._v("\n\t\t\tУдалить\n\t\t")
-          ]
+          [_vm._v("Сброс")]
         )
+      ])
+    ]),
+    _vm._v(" "),
+    _c("div", { staticClass: "Timer__row Timer__row--info" }, [
+      _c("span", {
+        staticClass: "Timer__name",
+        domProps: { textContent: _vm._s(_vm.name) }
+      }),
+      _vm._v(" "),
+      _c("span", {
+        staticClass: "Timer__value",
+        domProps: { textContent: _vm._s(_vm.begin) }
+      }),
+      _vm._v(" "),
+      _c("span", { staticClass: "BtnAudio" }, [
+        _c("input", {
+          directives: [
+            {
+              name: "model",
+              rawName: "v-model",
+              value: _vm.song.id,
+              expression: "song.id"
+            }
+          ],
+          attrs: {
+            type: "checkbox",
+            id: "AudioCheck-" + _vm.song.id,
+            name: "audioCheck_" + _vm.song.id
+          },
+          domProps: {
+            checked: Array.isArray(_vm.song.id)
+              ? _vm._i(_vm.song.id, null) > -1
+              : _vm.song.id
+          },
+          on: {
+            change: function($event) {
+              var $$a = _vm.song.id,
+                $$el = $event.target,
+                $$c = $$el.checked ? true : false
+              if (Array.isArray($$a)) {
+                var $$v = null,
+                  $$i = _vm._i($$a, $$v)
+                if ($$el.checked) {
+                  $$i < 0 && _vm.$set(_vm.song, "id", $$a.concat([$$v]))
+                } else {
+                  $$i > -1 &&
+                    _vm.$set(
+                      _vm.song,
+                      "id",
+                      $$a.slice(0, $$i).concat($$a.slice($$i + 1))
+                    )
+                }
+              } else {
+                _vm.$set(_vm.song, "id", $$c)
+              }
+            }
+          }
+        }),
+        _vm._v(" "),
+        _c("label", { attrs: { for: "AudioCheck-" + _vm.song.id } }, [
+          _vm._v(_vm._s(_vm.song.title))
+        ])
       ]),
       _vm._v(" "),
-      _vm._m(0)
-    ]
-  )
+      _c(
+        "button",
+        {
+          staticClass: "Btn Btn--link Btn--edit",
+          on: {
+            click: function($event) {
+              return _vm.edit(_vm.$data)
+            }
+          }
+        },
+        [
+          _c("span", { staticClass: "Icon Icon--edit" }),
+          _vm._v("\n\t\t\tРедактировать\n\t\t")
+        ]
+      ),
+      _vm._v(" "),
+      _c(
+        "button",
+        { staticClass: "Btn Btn--link Btn--remove", on: { click: _vm.remove } },
+        [
+          _c("span", { staticClass: "Icon Icon--remove" }),
+          _vm._v("\n\t\t\tУдалить\n\t\t")
+        ]
+      )
+    ]),
+    _vm._v(" "),
+    _vm._m(0)
+  ])
 }
 var staticRenderFns = [
   function() {
@@ -33069,18 +33064,25 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************!*\
   !*** ./src/js/functions.js ***!
   \*****************************/
-/*! exports provided: IDGenerator, AdjustingInterval, default */
+/*! exports provided: IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IDGenerator", function() { return IDGenerator; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AdjustingInterval", function() { return AdjustingInterval; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeStr2Array", function() { return timeStr2Array; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeSecond2Human", function() { return timeSecond2Human; });
+var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+
+__webpack_require__(/*! moment-duration-format */ "./node_modules/moment-duration-format/lib/moment-duration-format.js");
 /**
  * Генератор Id
  *
  * @constructor
  */
+
+
 function IDGenerator() {
   this.length = 8;
   this.timestamp = +new Date();
@@ -33103,7 +33105,6 @@ function IDGenerator() {
     return Number(id);
   };
 }
-;
 /**
  * Саморегулирующийся интервал для учета дрейфа
  *
@@ -33147,10 +33148,36 @@ function AdjustingInterval(workFunc, id, interval, errorFunc) {
     }
   }
 }
-;
+/**
+ * Преобразовать строку времени 00:00:00 в массив [0, 0, 0]
+ *
+ * @param value
+ * @returns {number[]}
+ */
+
+function timeStr2Array(value) {
+  return moment.duration(value, 'seconds').format('hh:mm:ss', {
+    trim: false
+  }).split(':').map(Number);
+}
+/**
+ * Преобразовать секунды в 00:00:00
+ *
+ * @param seconds
+ * @returns {*}
+ */
+
+function timeSecond2Human(seconds) {
+  var duration = moment.duration(seconds, 'seconds');
+  return duration.format('hh:mm:ss', {
+    trim: false
+  });
+}
 /* harmony default export */ __webpack_exports__["default"] = ({
   IDGenerator: IDGenerator,
-  AdjustingInterval: AdjustingInterval
+  AdjustingInterval: AdjustingInterval,
+  timeStr2Array: timeStr2Array,
+  timeSecond2Human: timeSecond2Human
 });
 
 /***/ }),

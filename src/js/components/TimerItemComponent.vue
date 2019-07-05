@@ -1,5 +1,5 @@
 <template>
-	<div class="Timer__item" data-id="${id}">
+	<div class="Timer__item">
 		<div class="Timer__row">
 			<div class="Timer__counter js-Timer-counter" v-text="counter"></div>
 			<div class="Timer__controls">
@@ -14,7 +14,7 @@
 				<input v-model="song.id" type="checkbox" :id="`AudioCheck-${song.id}`" :name="`audioCheck_${song.id}`">
 				<label :for="`AudioCheck-${song.id}`">{{ song.title }}</label>
 			</span>
-			<button @click="edit" class="Btn Btn--link Btn--edit">
+			<button @click="edit($data)" class="Btn Btn--link Btn--edit">
 				<span class="Icon Icon--edit"></span>
 				Редактировать
 			</button>
@@ -33,31 +33,31 @@
 
 <script>
 	// import { AdjustingInterval } from '../functions';
+	import { timeSecond2Human } from '../functions';
 
 	export default {
 		name: "TimerItemComponent",
 		created() {
-			this.counter = '00:00:00';
-			this.begin = '00:00:00';
+			this.counter = timeSecond2Human(this.params.begin);
+			this.begin = this.params.begin;
 			this.id = this.params.id;
 			this.name = this.params.name;
 			this.song = this.params.song;
 		},
 		props: {
-			params: {
-				type: Object,
-				required: true
-			}
+			params: Object
 		},
 		data: () => ({
 			counter: '--:--:--',
-			begin: '--:--:--',
+			begin: 0,
 			id: null,
 			name: '',
 			song: null,
 		}),
 		methods: {
-			edit() {},
+			edit(data) {
+				this.$root.$emit('openModal', data);
+			},
 			remove() {
 				if (confirm('Вы действительно хотите удалить таймер?')) {
 					this.$root.$emit('removeTimer', this.id);

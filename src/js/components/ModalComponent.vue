@@ -49,51 +49,36 @@
 
 <script>
 
-	const moment = require("moment");
-	require("moment-duration-format");
+	// const moment = require("moment");
+	// require("moment-duration-format");
+
+	import { timeStr2Array } from '../functions';
 
 	export default {
 		name: "ModalComponent",
 		props: {
-			songs: {
-				type: Array,
-				required: true
-			},
-			params: {
-				type: Object,
-				default: function () {
-					return {
-						name: '',
-						id: null,
-						songId: null,
-						hour: 0,
-						minute: 10,
-						second: 0
-					}
-				}
-			}
+			songs: Array,
+			params: Object
 		},
 		created() {
-
-			console.log(this.params);
-
-			if (this.params) {
-				const timeFormat = moment
-					.duration(this.params.begin, 'seconds')
-					.format('hh:mm:ss', { trim: false })
-					.split(':')
-					.map(Number);
-
-				this.id = this.params.id;
-				this.hour = timeFormat[0];
-				this.minute = timeFormat[1];
-				this.second = timeFormat[2];
-				this.songId = !!this.params.song ? this.params.song.id : this.songs[0].id;
-				this.name = this.params.name;
-			}
+			// console.log(this.params);
 
 		},
 		watch: {
+			params(value) {
+				if (value) {
+
+					const timeFormat = timeStr2Array(value.begin);
+
+					this.id = value.id;
+					this.hour = timeFormat[0];
+					this.minute = timeFormat[1];
+					this.second = timeFormat[2];
+					this.songId = !!value.song ? value.song.id : this.songs[0].id;
+					this.name = value.name;
+				}
+			},
+
 			songId() {
 				// console.log(value);
 				this.$root.$emit('pauseSong');
