@@ -9,7 +9,7 @@
 		</div>
 		<div class="Timer__row Timer__row--info">
 			<span class="Timer__name" v-text="name"></span>
-			<span class="Timer__value" v-text="begin"></span>
+			<span class="Timer__value" v-text="counterDyn"></span>
 			<span class="BtnAudio">
 				<input v-model="song.id" type="checkbox" :id="`AudioCheck-${song.id}`" :name="`audioCheck_${song.id}`">
 				<label :for="`AudioCheck-${song.id}`">{{ song.title }}</label>
@@ -47,6 +47,11 @@
 		props: {
 			params: Object
 		},
+		computed: {
+			counterDyn: function () {
+				return this.counter;
+			}
+		},
 		data: () => ({
 			counter: '--:--:--',
 			begin: 0,
@@ -63,7 +68,9 @@
 					this.$root.$emit('removeTimer', this.id);
 				}
 			},
-			toggle() {},
+			toggle() {
+				this.$root.$emit('toggleTimer', this.id);
+			},
 			reset() {},
 		}
 	};

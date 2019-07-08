@@ -37,12 +37,11 @@ export function IDGenerator() {
  * @param errorFunc
  * @constructor
  */
-export function AdjustingInterval(workFunc, id, interval, errorFunc) {
+export function AdjustingInterval(workFunc, interval, errorFunc) {
     var that = this;
     var expected, timeout;
     var running = false;
     this.interval = interval;
-    this.timerId = id;
 
     this.start = function() {
         running = true;
@@ -61,7 +60,7 @@ export function AdjustingInterval(workFunc, id, interval, errorFunc) {
             if (errorFunc) errorFunc();
         }
 
-        workFunc(that.timerId);
+        workFunc();
 
         if (running) {
             expected += that.interval;

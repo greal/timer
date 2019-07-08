@@ -12,14 +12,29 @@
 </template>
 
 <script>
-	import { IDGenerator } from '../functions';
+	import { IDGenerator, AdjustingInterval } from '../functions';
+	import timeChecker from '../timeChecker';
 	import Modal from './ModalComponent';
 	import TimerItem from './TimerItemComponent';
 
+	const timeCheck = new timeChecker();
+	const timerInstance = new AdjustingInterval(() => {
+		timeCheck.check()
+	}, 1000, () => {
+		console.warn('The drift exceeded the interval.');
+	});
+
 	export default {
 		name: "TimerComponent",
-		components: { TimerItem, Modal },
+		components: {
+			TimerItem,
+			Modal
+		},
 		created() {
+
+
+			timerInstance.start();
+
 			// Сохранить таймер
 			this.$root.$on('saveTimer', (data) => {
 				this.add(data);
@@ -27,10 +42,8 @@
 
 			// Открыть окно
 			this.$root.$on('openModal', (payload) => {
-				// this.isShowModal = false
 				this.openModal(payload);
 			});
-
 
 			// Закрыть окно
 			this.$root.$on('closeModal', () => {
@@ -45,6 +58,32 @@
 			// Остановить прослушивание
 			this.$root.$on('pauseSong', () => {
 				// console.log(payload);
+			});
+
+			// Вкл./Выкл. таймер
+			this.$root.$on('toggleTimer', id => {
+				//console.log(timeCheck.cfg.checks, id);
+
+				if (!this.isset(id)) {
+					// Включить таймер
+					timeCheck.cfg.checks.push({
+						id: id,
+						check: () => true,
+						action: () => {
+							// timerProcess(id);
+							console.log(timeCheck.cfg.checks, id);
+						}
+					});
+
+					// обновление
+					timeCheck.renew();
+				} else {
+					// Отключить таймер
+					timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex((item) =>item.id === id), 1);
+
+					// обновление
+					timeCheck.renew();
+				}
 			});
 
 			// Удалить таймер
@@ -121,6 +160,11 @@
 			openModal(params) {
 				this.modalParams = !!params ? params : this.defaultParams;
 				this.isShowModal = true;
+			},
+
+			isset: function(id) {
+				let findTimer = timeCheck.cfg.checks.find((item) => item.id === id);
+				return (typeof findTimer === 'object');
 			},
 
 			add(data) {

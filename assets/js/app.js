@@ -126,8 +126,11 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../functions */ "./src/js/functions.js");
-/* harmony import */ var _ModalComponent__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalComponent */ "./src/js/components/ModalComponent.vue");
-/* harmony import */ var _TimerItemComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TimerItemComponent */ "./src/js/components/TimerItemComponent.vue");
+/* harmony import */ var _timeChecker__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../timeChecker */ "./src/js/timeChecker.js");
+/* harmony import */ var _ModalComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ModalComponent */ "./src/js/components/ModalComponent.vue");
+/* harmony import */ var _TimerItemComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./TimerItemComponent */ "./src/js/components/TimerItemComponent.vue");
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
 //
 //
 //
@@ -144,22 +147,29 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+var timeCheck = new _timeChecker__WEBPACK_IMPORTED_MODULE_1__["default"]();
+var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_0__["AdjustingInterval"](function () {
+  timeCheck.check();
+}, 1000, function () {
+  console.warn('The drift exceeded the interval.');
+});
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TimerComponent",
   components: {
-    TimerItem: _TimerItemComponent__WEBPACK_IMPORTED_MODULE_2__["default"],
-    Modal: _ModalComponent__WEBPACK_IMPORTED_MODULE_1__["default"]
+    TimerItem: _TimerItemComponent__WEBPACK_IMPORTED_MODULE_3__["default"],
+    Modal: _ModalComponent__WEBPACK_IMPORTED_MODULE_2__["default"]
   },
   created: function created() {
     var _this = this;
 
-    // Сохранить таймер
+    timerInstance.start(); // Сохранить таймер
+
     this.$root.$on('saveTimer', function (data) {
       _this.add(data);
     }); // Открыть окно
 
     this.$root.$on('openModal', function (payload) {
-      // this.isShowModal = false
       _this.openModal(payload);
     }); // Закрыть окно
 
@@ -172,6 +182,32 @@ __webpack_require__.r(__webpack_exports__);
     }); // Остановить прослушивание
 
     this.$root.$on('pauseSong', function () {// console.log(payload);
+    }); // Вкл./Выкл. таймер
+
+    this.$root.$on('toggleTimer', function (id) {
+      //console.log(timeCheck.cfg.checks, id);
+      if (!_this.isset(id)) {
+        // Включить таймер
+        timeCheck.cfg.checks.push({
+          id: id,
+          check: function check() {
+            return true;
+          },
+          action: function action() {
+            // timerProcess(id);
+            console.log(timeCheck.cfg.checks, id);
+          }
+        }); // обновление
+
+        timeCheck.renew();
+      } else {
+        // Отключить таймер
+        timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) {
+          return item.id === id;
+        }), 1); // обновление
+
+        timeCheck.renew();
+      }
     }); // Удалить таймер
 
     this.$root.$on('removeTimer', function () {// console.log(payload);
@@ -241,6 +277,12 @@ __webpack_require__.r(__webpack_exports__);
       this.modalParams = !!params ? params : this.defaultParams;
       this.isShowModal = true;
     },
+    isset: function isset(id) {
+      var findTimer = timeCheck.cfg.checks.find(function (item) {
+        return item.id === id;
+      });
+      return _typeof(findTimer) === 'object';
+    },
     add: function add(data) {
       console.log(data);
     }
@@ -306,6 +348,11 @@ __webpack_require__.r(__webpack_exports__);
   props: {
     params: Object
   },
+  computed: {
+    counterDyn: function counterDyn() {
+      return this.counter;
+    }
+  },
   data: function data() {
     return {
       counter: '--:--:--',
@@ -324,7 +371,9 @@ __webpack_require__.r(__webpack_exports__);
         this.$root.$emit('removeTimer', this.id);
       }
     },
-    toggle: function toggle() {},
+    toggle: function toggle() {
+      this.$root.$emit('toggleTimer', this.id);
+    },
     reset: function reset() {}
   }
 });
@@ -20575,7 +20624,7 @@ var render = function() {
       _vm._v(" "),
       _c("span", {
         staticClass: "Timer__value",
-        domProps: { textContent: _vm._s(_vm.begin) }
+        domProps: { textContent: _vm._s(_vm.counterDyn) }
       }),
       _vm._v(" "),
       _c("span", { staticClass: "BtnAudio" }, [
@@ -33115,12 +33164,11 @@ function IDGenerator() {
  * @constructor
  */
 
-function AdjustingInterval(workFunc, id, interval, errorFunc) {
+function AdjustingInterval(workFunc, interval, errorFunc) {
   var that = this;
   var expected, timeout;
   var running = false;
   this.interval = interval;
-  this.timerId = id;
 
   this.start = function () {
     running = true;
@@ -33140,7 +33188,7 @@ function AdjustingInterval(workFunc, id, interval, errorFunc) {
       if (errorFunc) errorFunc();
     }
 
-    workFunc(that.timerId);
+    workFunc();
 
     if (running) {
       expected += that.interval;
@@ -33298,6 +33346,169 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
   }
 });
+
+/***/ }),
+
+/***/ "./src/js/timeChecker.js":
+/*!*******************************!*\
+  !*** ./src/js/timeChecker.js ***!
+  \*******************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _default; });
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+/**
+ * Реакция на определённое время
+ * @param {object} cfg объект с настройками
+ * {
+ *
+ * infinity - boolean, true - выполнять бесконечно, false - только один раз
+
+	// если эта функция вернёт true,
+	// проверки сбросятся в исходное состояние
+	// dateOld — объект даты прошлой проверки
+	// dateNew — объект даты текущей проверки
+	renewCheck: function (dateOld, dateNew) {},
+
+	// массив проверок
+	checks: [
+		{
+
+			// если check вернёт true
+			// сработает action
+			// date — объект текущего времени
+			check: function (date) {},
+			action: function () {}
+		}
+	]
+}
+ */
+// полнейшее клонирование объекта
+// http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
+function clone(obj) {
+  var copy; // Handle the 3 simple types, and null or undefined
+
+  if (null == obj || "object" != _typeof(obj)) return obj; // Handle Date
+
+  if (obj instanceof Date) {
+    copy = new Date();
+    copy.setTime(obj.getTime());
+    return copy;
+  } // Handle Array
+
+
+  if (obj instanceof Array) {
+    copy = [];
+
+    for (var i = 0, len = obj.length; i < len; i++) {
+      copy[i] = clone(obj[i]);
+    }
+
+    return copy;
+  } // Handle Object
+
+
+  if (obj instanceof Object) {
+    copy = {};
+
+    for (var attr in obj) {
+      if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+    }
+
+    return copy;
+  }
+
+  throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+
+var _default =
+/*#__PURE__*/
+function () {
+  function _default() {
+    var cfg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
+      // Бесконечно выполнять
+      infinity: true,
+      // если эта функция вернёт true, проверки сбросятся в исходное состояние
+      renewCheck: function renewCheck() {
+        return false;
+      },
+      // Массив с проверками
+      checks: []
+    };
+
+    _classCallCheck(this, _default);
+
+    this.config(cfg);
+    this.dateOld = new Date(); // дата предыдущей проверки
+
+    return this;
+  } // получение и установка настроек
+
+
+  _createClass(_default, [{
+    key: "config",
+    value: function config(cfg) {
+      if (cfg) {
+        this.cfg = clone(cfg); // кеш настроек
+
+        this.cfgTmp = clone(cfg); // настройки, с которыми работаем
+      } else {
+        return this.cfg;
+      }
+    } // обновление проверок
+
+  }, {
+    key: "renew",
+    value: function renew() {
+      this.cfgTmp = clone(this.cfg);
+    } // получение даты
+
+  }, {
+    key: "getDate",
+    value: function getDate() {
+      return new Date();
+    }
+  }, {
+    key: "check",
+    value: function check() {
+      if (!this.cfg) {
+        return;
+      }
+
+      var that = this;
+      var date = this.getDate();
+
+      if (this.cfg.renewCheck(this.dateOld, date)) {
+        this.renew();
+      }
+
+      this.cfgTmp.checks.forEach(function (item, i) {
+        if (item.check(date)) {
+          item.action(); // Нужно ли выполнять бесконечно
+
+          if (!that.cfg.infinity) {
+            that.cfgTmp.checks.splice(i, 1);
+          }
+        }
+      });
+      this.dateOld = new Date();
+    }
+  }]);
+
+  return _default;
+}();
+
+
 
 /***/ }),
 
