@@ -1,4 +1,26 @@
-let mix = require('laravel-mix');
+const mix = require('laravel-mix');
+const webpack = require('webpack');
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+mix.webpackConfig({
+	module: {
+		rules: [
+			{
+				enforce: 'pre',
+				test: /\.(js|vue)$/,
+				loader: 'eslint-loader',
+				exclude: /node_modules/
+			}
+		]
+	},
+	plugins: [
+		// new BundleAnalyzerPlugin(),
+		// Ignore all locale files of moment.js
+		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+		// Если нужны некоторые локали
+		// new webpack.IgnorePlugin(/^\.\/locale\/(en|de)\.js$/, /moment$/)
+	],
+});
 
 mix.js('src/js/app.js', 'js')
 	.postCss('src/css/styles.css', 'css')
@@ -16,7 +38,13 @@ mix.options({
 });
 
 mix.extract([
-	'jquery'
+	'vue',
+	'vuex',
+	'moment',
+	'moment-duration-format',
+	'favico.js',
+	'setimmediate',
+	'process'
 ], 'js/vendor.js');
 
 mix.disableNotifications();

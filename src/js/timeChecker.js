@@ -28,99 +28,107 @@
 // полнейшее клонирование объекта
 // http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
 function clone(obj) {
-	let copy;
+    let copy;
 
-	// Handle the 3 simple types, and null or undefined
-	if (null == obj || "object" != typeof obj) return obj;
+    // Handle the 3 simple types, and null or undefined
+    if (obj === null || typeof obj !== `object`) {
+        return obj;
+    }
 
-	// Handle Date
-	if (obj instanceof Date) {
-		copy = new Date();
-		copy.setTime(obj.getTime());
-		return copy;
-	}
+    // Handle Date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
 
-	// Handle Array
-	if (obj instanceof Array) {
-		copy = [];
-		for (let i = 0, len = obj.length; i < len; i++) {
-			copy[i] = clone(obj[i]);
-		}
-		return copy;
-	}
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (let i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
 
-	// Handle Object
-	if (obj instanceof Object) {
-		copy = {};
-		for (let attr in obj) {
-			if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
-		}
-		return copy;
-	}
+        return copy;
+    }
 
-	throw new Error("Unable to copy obj! Its type isn't supported.");
+    // Handle Object
+    if (obj instanceof Object) {
+        copy = {};
+        for (let attr in obj) {
+            if (obj.hasOwnProperty(attr)) {
+                copy[attr] = clone(obj[attr]);
+            }
+        }
+
+        return copy;
+    }
+
+    throw new Error(`Unable to copy obj! Its type isn't supported.`);
 }
 
 export default class {
-	constructor(cfg = {
-		// Бесконечно выполнять
-		infinity: true,
+    constructor(cfg = {
+        // Бесконечно выполнять
+        infinity: true,
 
-		// если эта функция вернёт true, проверки сбросятся в исходное состояние
-		renewCheck: function () {
-			return false;
-		},
+        // если эта функция вернёт true, проверки сбросятся в исходное состояние
+        renewCheck() {
+            return false;
+        },
 
-		// Массив с проверками
-		checks: []
-	}) {
-		this.config(cfg);
-		this.dateOld = new Date(); // дата предыдущей проверки
+        // Массив с проверками
+        checks: []
+    }) {
+        this.config(cfg);
+        this.dateOld = new Date(); // дата предыдущей проверки
 
-		return this;
-	}
+        return this;
+    }
 
-	// получение и установка настроек
-	config(cfg) {
-		if (cfg) {
-			this.cfg = clone(cfg); // кеш настроек
-			this.cfgTmp = clone(cfg); // настройки, с которыми работаем
-		} else {
-			return this.cfg;
-		}
-	}
+    // получение и установка настроек
+    config(cfg = null) {
+        if (cfg) {
+            this.cfg = clone(cfg); // кеш настроек
+            this.cfgTmp = clone(cfg); // настройки, с которыми работаем
+        }
 
-	// обновление проверок
-	renew() {
-		this.cfgTmp = clone(this.cfg);
-	}
+        return this.cfg;
+    }
 
-	// получение даты
-	getDate() {
-		return new Date();
-	}
+    // обновление проверок
+    renew() {
+        this.cfgTmp = clone(this.cfg);
+    }
 
-	check() {
-		if (!this.cfg) { return; }
+    // получение даты
+    getDate() {
+        return new Date();
+    }
 
-		var that = this;
-		var date = this.getDate();
+    check() {
+        if (!this.cfg) {
+            return;
+        }
 
-		if (this.cfg.renewCheck(this.dateOld, date)) {
-			this.renew();
-		}
+        let that = this;
+        let date = this.getDate();
 
-		this.cfgTmp.checks.forEach(function (item, i) {
-			if (item.check(date)) {
-				item.action();
+        if (this.cfg.renewCheck(this.dateOld, date)) {
+            this.renew();
+        }
 
-				// Нужно ли выполнять бесконечно
-				if (!that.cfg.infinity) {
-					that.cfgTmp.checks.splice(i, 1);
-				}
-			}
-		});
+        this.cfgTmp.checks.forEach(function (item, i) {
+            if (item.check(date)) {
+                item.action();
 
-		this.dateOld = new Date();
-	}
+                // Нужно ли выполнять бесконечно
+                if (!that.cfg.infinity) {
+                    that.cfgTmp.checks.splice(i, 1);
+                }
+            }
+        });
+
+        this.dateOld = new Date();
+    }
 }

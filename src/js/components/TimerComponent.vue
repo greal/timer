@@ -1,18 +1,23 @@
 <template>
 	<div class="Timer">
-		<timer-item v-if="timers.length" v-for="item in timers" :key="item.id" :params="item"></timer-item>
+		<template v-if="timers.length">
+			<timer-item v-for="item in timers" :key="item.id" :timer-id="item.id"></timer-item>
+		</template>
 		<div v-else class="Timer__item">
 			<div class="Timer__empty">У вас нет ни одного таймера!</div>
 		</div>
 		<div class="Timer__footer">
 			<a @click.prevent="openModal()" class="Btn Btn--default js-Modal-add" href="#"><span class="Icon Icon--add"></span> Добавить таймер</a>
 		</div>
-		<modal v-show="isShowModal" v-bind='{ songs, params: modalParams }'></modal>
+		<modal v-show="isShowModal" :timerId="modalTimerId"></modal>
 	</div>
 </template>
 
 <script>
-	import { IDGenerator, AdjustingInterval } from '../functions';
+
+	import { mapState, mapActions } from 'vuex'
+
+	import { AdjustingInterval } from '../functions';
 	import timeChecker from '../timeChecker';
 	import Modal from './ModalComponent';
 	import TimerItem from './TimerItemComponent';
@@ -32,7 +37,7 @@
 		},
 		created() {
 
-
+			// Запуск общего таймера
 			timerInstance.start();
 
 			// Сохранить таймер
@@ -41,8 +46,8 @@
 			});
 
 			// Открыть окно
-			this.$root.$on('openModal', (payload) => {
-				this.openModal(payload);
+			this.$root.$on('openModal', timerId => {
+				this.openModal(timerId);
 			});
 
 			// Закрыть окно
@@ -51,39 +56,13 @@
 			});
 
 			// Прослушать звук
-			this.$root.$on('listenSong', payload => {
+			this.$root.$on('playSong', payload => {
 				console.log(payload);
-			});
-
-			// Остановить прослушивание
-			this.$root.$on('pauseSong', () => {
-				// console.log(payload);
 			});
 
 			// Вкл./Выкл. таймер
 			this.$root.$on('toggleTimer', id => {
-				//console.log(timeCheck.cfg.checks, id);
-
-				if (!this.isset(id)) {
-					// Включить таймер
-					timeCheck.cfg.checks.push({
-						id: id,
-						check: () => true,
-						action: () => {
-							// timerProcess(id);
-							console.log(timeCheck.cfg.checks, id);
-						}
-					});
-
-					// обновление
-					timeCheck.renew();
-				} else {
-					// Отключить таймер
-					timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex((item) =>item.id === id), 1);
-
-					// обновление
-					timeCheck.renew();
-				}
+				this.toggleTimer(id);
 			});
 
 			// Удалить таймер
@@ -91,81 +70,136 @@
 				// console.log(payload);
 			});
 
-			// Получаем сохраненные таймеры
-			this.timers = this.$root.$store.get('timers', []);
+			// Если страница была перезагружена
+			this.timers.filter(timer => timer.isActive === true).forEach(function (timer) {
+				// timerState(timer.id, true);
 
-			// Установка таймера по умолчанию, если нет таймеров
-			if (!this.timers.length) {
-				let generator = new IDGenerator();
-				this.$root.$store.set('timers', [
-					Object.assign(this.defaultParams, {
-						id: generator.generate(),
-						song: this.songs[0]
-					})
-				]);
-			}
+				console.log('Reloaded: ', timer);
+			});
+
 		},
+
+		computed: mapState({
+			timers: state => state.timer.timers,
+		}),
+
 		data: () => ({
 			// Показать модальное окно
 			isShowModal: false,
 
-			songs: [{
-				id: 1,
-				title: 'Songs #1'
-			},{
-				id: 2,
-				title: 'Alarm'
-			},{
-				id: 3,
-				title: 'Дритатушечки'
-			},{
-				id: 4,
-				title: 'Super Mario'
-			},{
-				id: 5,
-				title: 'Roll Up'
-			},{
-				id: 6,
-				title: 'Bitter sweet'
-			},{
-				id: 7,
-				title: 'San Andreas'
-			},{
-				id: 8,
-				title: 'Полиция'
-			},{
-				id: 9,
-				title: 'Dubstep violin'
-			},{
-				id: 10,
-				title: 'Symphonie (remix)'
-			}],
-
-			// Параметры по умолчанию
-			defaultParams: {
-				name: 'Таймер №1',
-				song: null,
-				isActive: false,
-				begin: 600, // Начальное значение секунд
-				passed: 0, // Прошло секунд
-			},
-
-			modalParams: null,
-
-
-			timers: []
+			modalTimerId: null
 		}),
+
 		methods: {
 
-			openModal(params) {
-				this.modalParams = !!params ? params : this.defaultParams;
+			...mapActions({
+				changeActivity: 'timer/changeActivity',
+				updatePassedTimer: 'timer/updatePassedTimer',
+			}),
+
+			// Поиск запущенного таймера
+			issetStartedTimer(id) {
+				return timeCheck.cfg.checks.findIndex(item => item.id === id) !== -1;
+			},
+
+			// Процесс выполнения таймера
+			timerProcess(id) {
+
+				// Поиск таймера
+				let timer = this.$store.getters['timer/findTimer'](id);
+
+				// Обновить пройденное время таймера
+				this.updatePassedTimer(timer);
+
+				console.log(id);
+
+				// Прогресс бар
+				//var timeLeft = progressTimer(timer);
+				//if (timeLeft <= 0) {
+
+					// var timerItem = $('.Timer__item[data-id="' + timer.id + '"]');
+
+					// Включить уведомление
+					// timerItem
+					// 	.find('.js-Timer-song')
+					// 	.prop('checked', true)
+					// 	.change();
+
+					// Добавить уведомление в favicon и title
+					// faviconBadge++;
+					// handlerNotify();
+
+					// Цвет просрочки
+					// timerItem.addClass('Timer__item--overdue');
+
+					// Остановить таймер
+					// timerState(timer.id, false);
+				//}
+			},
+
+			toggleTimer(id) {
+				let that = this;
+				const isIssetTimer = that.issetStartedTimer(id);
+
+				// Установка активности
+				that.changeActivity({ id, isActive: !isIssetTimer });
+
+				// Включить таймер
+				if (!isIssetTimer) {
+
+					// Добавление таймера
+					timeCheck.cfg.checks.push({
+						id: id,
+						check: () => true,
+						action: () => {
+							that.timerProcess(id);
+							// console.log(timeCheck.cfg.checks, id);
+						}
+					});
+
+					// обновление
+					timeCheck.renew();
+				}
+
+				// Отключить таймер
+				else {
+
+					// Удаление таймера
+					timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(item =>item.id === id), 1);
+
+					// обновление
+					timeCheck.renew();
+				}
+			},
+
+			// Смена состояния таймера
+			timerState(id, state) {
+
+				// Управление таймером
+				// state
+				// 	? storeTimer.start(id)
+				// 	: storeTimer.stop(id);
+
+				let timers = this.$root.$store.get('timers', []);
+				timers.map((item) => {
+					if (item.id === id) {
+						item.isActive = state;
+					}
+					return item;
+				});
+				this.$root.$store.set('timers', timers);
+
+				// Смена состояния кнопки
+				// actionBtnState(id, state);
+			},
+
+			// Открыть окно
+			openModal(timerId = null) {
+				this.modalTimerId = timerId;
 				this.isShowModal = true;
 			},
 
-			isset: function(id) {
-				let findTimer = timeCheck.cfg.checks.find((item) => item.id === id);
-				return (typeof findTimer === 'object');
-			},
+
 
 			add(data) {
 				console.log(data);
@@ -173,7 +207,3 @@
 		}
 	}
 </script>
-
-<style scoped>
-
-</style>

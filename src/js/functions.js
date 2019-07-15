@@ -1,26 +1,29 @@
-const moment = require("moment");
-require("moment-duration-format");
+const moment = require(`moment`);
+require(`moment-duration-format`);
+
 
 /**
  * Генератор Id
  *
- * @constructor
+ * @export
+ * @class IDGenerator
  */
-export function IDGenerator() {
-    this.length = 8;
-    this.timestamp = +new Date;
+export class IDGenerator {
+    constructor() {
+        this.length = 8;
+        this.timestamp = +new Date();
+    }
 
-    var _getRandomInt = function( min, max ) {
-        return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
-    };
+    _getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-    this.generate = function() {
-        var ts = this.timestamp.toString();
-        var parts = ts.split( "" ).reverse();
-        var id = "";
-
-        for( var i = 0; i < this.length; ++i ) {
-            var index = _getRandomInt( 0, parts.length - 1 );
+    generate() {
+        let ts = this.timestamp.toString();
+        let parts = ts.split(``).reverse();
+        let id = ``;
+        for (let i = 0; i < this.length; ++i) {
+            let index = this._getRandomInt(0, parts.length - 1);
             id += parts[index];
         }
 
@@ -28,72 +31,85 @@ export function IDGenerator() {
     }
 }
 
+
 /**
  * Саморегулирующийся интервал для учета дрейфа
  *
- * @param workFunc
- * @param id
- * @param interval
- * @param errorFunc
- * @constructor
+ * @export
+ * @class AdjustingInterval
  */
-export function AdjustingInterval(workFunc, interval, errorFunc) {
-    var that = this;
-    var expected, timeout;
-    var running = false;
-    this.interval = interval;
+export class AdjustingInterval {
 
-    this.start = function() {
-        running = true;
-        expected = Date.now() + this.interval;
-        timeout = setTimeout(step, this.interval);
-    };
+    /**
+     * Creates an instance of AdjustingInterval.
+     * @param {AdjustingInterval~callback} callback
+     * @param {*} interval
+     * @param {AdjustingInterval~errorCallback} [errorCallback=null]
+     * @memberof AdjustingInterval
+     */
+    constructor(callback, interval, errorCallback = null) {
+        this.running = false;
+        this.interval = interval;
+        this.callback = callback;
+        this.errorCallback = errorCallback;
+    }
 
-    this.stop = function() {
-        running = false;
-        clearTimeout(timeout);
-    };
+    start() {
+        this.running = true;
+        this.expected = Date.now() + this.interval;
+        this.timeout = setTimeout(() => this._step(), this.interval);
+    }
 
-    function step() {
-        var drift = Date.now() - expected;
-        if (drift > that.interval) {
-            if (errorFunc) errorFunc();
+    stop() {
+        this.running = false;
+        clearTimeout(this.timeout);
+    }
+
+    _step() {
+        let drift = Date.now() - this.expected;
+        if (drift > this.interval) {
+            if (this.errorCallback) {
+                this.errorCallback();
+            }
         }
 
-        workFunc();
+        this.callback();
 
-        if (running) {
-            expected += that.interval;
-            timeout = setTimeout(step, Math.max(0, that.interval - drift));
+        if (this.running) {
+            this.expected += this.interval;
+            this.timeout = setTimeout(() => this._step(), Math.max(0, this.interval - drift));
         }
     }
 }
 
+
 /**
- * Преобразовать строку времени 00:00:00 в массив [0, 0, 0]
+ * Преобразовать секунды в массив [час, минута, секунда]
  *
- * @param value
- * @returns {number[]}
+ * @export
+ * @param {Number} time
+ * @return {Array}
  */
-export function timeStr2Array(value) {
+export function timeStr2Array(time) {
     return moment
-        .duration(value, 'seconds')
-        .format('hh:mm:ss', { trim: false })
-        .split(':')
+        .duration(time, `seconds`)
+        .format(`hh:mm:ss`, {trim: false})
+        .split(`:`)
         .map(Number);
 }
+
 
 /**
  * Преобразовать секунды в 00:00:00
  *
- * @param seconds
- * @returns {*}
+ * @export
+ * @param {Number} seconds
+ * @return {String}
  */
 export function timeSecond2Human(seconds) {
-    let duration = moment.duration(seconds, 'seconds');
-    return duration.format('hh:mm:ss', {
-        trim: false
-    });
+    let duration = moment.duration(seconds, `seconds`);
+    return duration.format(`hh:mm:ss`, {trim: false});
 }
 
-export default { IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human };
+
+export default {IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human};
