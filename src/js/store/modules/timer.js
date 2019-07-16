@@ -1,10 +1,10 @@
-/* eslint no-shadow: ["error", { "allow": ["state", "timers"] }]*/
+/* eslint no-shadow: ["error", { "allow": ["state", "timers", "getters"] }]*/
 
 import StoreSelector from '../../StoreSelector';
-import {IDGenerator} from '../../functions';
+import { IDGenerator, time2Second} from '../../functions';
 
 // initial state
-const state = {
+let state = {
 
     // Таймеры
     timers: [],
@@ -83,7 +83,7 @@ const getters = {
     // Поиск таймера
     findTimer: (state) => (id) => {
         return state.timers.find((item) => item.id === id);
-    },
+    }
 
 };
 
@@ -91,7 +91,7 @@ const getters = {
 const actions = {
 
     // Обновить пройденное время таймера
-    updatePassedTimer({commit, state}, timer) {
+    updatePassed({commit, state}, timer) {
         let newTimers = state.timers.map((item) => {
             if (item.id === timer.id && timer.passed <= item.begin) {
                 item.passed = timer.passed + 1;
@@ -113,6 +113,52 @@ const actions = {
         });
 
         commit(`updateTimersStore`, newTimers);
+    },
+
+    // Сброс пройденного времени
+    resetPassed({commit, state}, id) {
+        let newTimers = state.timers.map((item) => {
+            if (item.id === id) {
+                item.passed = 0;
+            }
+            return item;
+        });
+
+        commit(`updateTimersStore`, newTimers);
+    },
+
+    // Удаление таймера
+    removeTimer({commit, state}, id) {
+        let newTimers = state.timers.filter((item) => item.id !== id);
+
+        commit(`updateTimersStore`, newTimers);
+    },
+
+    // Сохранение таймера
+    saveTimer({commit, state, getters}, data) {
+        let begin = time2Second(data.hour, data.minute, data.second);
+        let timer = getters.findTimer(data.id);
+        if (timer) {
+            let newTimers = state.timers.map((item) => {
+                if (item.id === data.id) {
+                    item.name = data.name;
+                    item.song = data.song;
+                    item.begin = begin;
+                    item.passed = 0; // Сброс пройденного времени
+                }
+                return item;
+            });
+
+            commit(`updateTimersStore`, newTimers);
+        } else {
+            const generator = new IDGenerator();
+            commit(`addTimerStore`, Object.assign(state.defaultParams, {
+                id: generator.generate(),
+                name: data.name,
+                song: data.song,
+                begin: begin
+            }));
+        }
     }
 
 };
@@ -124,7 +170,14 @@ const mutations = {
     updateTimersStore(state, timers) {
         state.timers = timers;
 
-        StoreTimers.set(`timers`, timers);
+        StoreTimers.set(`timers`, state.timers);
+    },
+
+    // Добавить таймер
+    addTimerStore(state, timer) {
+        state.timers.push(timer);
+
+        StoreTimers.set(`timers`, state.timers);
     }
 
 };

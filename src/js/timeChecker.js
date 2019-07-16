@@ -5,23 +5,22 @@
  *
  * infinity - boolean, true - выполнять бесконечно, false - только один раз
 
-	// если эта функция вернёт true,
-	// проверки сбросятся в исходное состояние
-	// dateOld — объект даты прошлой проверки
-	// dateNew — объект даты текущей проверки
-	renewCheck: function (dateOld, dateNew) {},
+    // если эта функция вернёт true,
+    // проверки сбросятся в исходное состояние
+    // dateOld — объект даты прошлой проверки
+    // dateNew — объект даты текущей проверки
+    updateCheck: function (dateOld, dateNew) {},
 
-	// массив проверок
-	checks: [
-		{
-
-			// если check вернёт true
-			// сработает action
-			// date — объект текущего времени
-			check: function (date) {},
-			action: function () {}
-		}
-	]
+    // массив проверок
+    checks: [
+        {
+            // если check вернёт true
+            // сработает action
+            // date — объект текущего времени
+            check: function (date) {},
+            action: function () {}
+        }
+    ]
 }
  */
 
@@ -56,7 +55,7 @@ function clone(obj) {
     if (obj instanceof Object) {
         copy = {};
         for (let attr in obj) {
-            if (obj.hasOwnProperty(attr)) {
+            if (Object.prototype.hasOwnProperty.call(obj, attr)) {
                 copy[attr] = clone(obj[attr]);
             }
         }
@@ -73,7 +72,7 @@ export default class {
         infinity: true,
 
         // если эта функция вернёт true, проверки сбросятся в исходное состояние
-        renewCheck() {
+        updateCheck() {
             return false;
         },
 
@@ -97,7 +96,7 @@ export default class {
     }
 
     // обновление проверок
-    renew() {
+    update() {
         this.cfgTmp = clone(this.cfg);
     }
 
@@ -114,8 +113,8 @@ export default class {
         let that = this;
         let date = this.getDate();
 
-        if (this.cfg.renewCheck(this.dateOld, date)) {
-            this.renew();
+        if (this.cfg.updateCheck(this.dateOld, date)) {
+            this.update();
         }
 
         this.cfgTmp.checks.forEach(function (item, i) {

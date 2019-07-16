@@ -3,63 +3,63 @@ const webpack = require('webpack');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 mix.webpackConfig({
-	module: {
-		rules: [
-			{
-				enforce: 'pre',
-				test: /\.(js|vue)$/,
-				loader: 'eslint-loader',
-				exclude: /node_modules/
-			}
-		]
-	},
-	plugins: [
-		// new BundleAnalyzerPlugin(),
-		// Ignore all locale files of moment.js
-		new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-		// Если нужны некоторые локали
-		// new webpack.IgnorePlugin(/^\.\/locale\/(en|de)\.js$/, /moment$/)
-	],
+    module: {
+        rules: [
+            {
+                enforce: 'pre',
+                test: /\.(js|vue)$/,
+                loader: 'eslint-loader',
+                exclude: /node_modules/
+            }
+        ]
+    },
+    plugins: [
+        // new BundleAnalyzerPlugin(),
+        // Ignore all locale files of moment.js
+        new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+        // Если нужны некоторые локали
+        // new webpack.IgnorePlugin(/^\.\/locale\/(en|de)\.js$/, /moment$/)
+    ],
 });
 
 mix.js('src/js/app.js', 'js')
-	.postCss('src/css/styles.css', 'css')
-	.setPublicPath('assets');
+    .postCss('src/css/styles.css', 'css')
+    .setPublicPath('assets');
 
 mix.options({
-	extractVueStyles: true, // Extract .vue component styling to file, rather than inline.
-//  globalVueStyles: file, // Variables file to be imported in every component.
-//  processCssUrls: true, // Process/optimize relative stylesheet url()'s. Set to false, if you don't want them touched.
-//  purifyCss: false, // Remove unused CSS selectors.
-//  terser: {}, // Terser-specific options. https://github.com/webpack-contrib/terser-webpack-plugin#options
-	postCss: [
-		require('postcss-nested')
-	] // Post-CSS options: https://github.com/postcss/postcss/blob/master/docs/plugins.md
+    extractVueStyles: true, // Extract .vue component styling to file, rather than inline.
+    //  globalVueStyles: file, // Variables file to be imported in every component.
+    //  processCssUrls: true, // Process/optimize relative stylesheet url()'s. Set to false, if you don't want them touched.
+    //  purifyCss: false, // Remove unused CSS selectors.
+    //  terser: {}, // Terser-specific options. https://github.com/webpack-contrib/terser-webpack-plugin#options
+    postCss: [
+        require('postcss-nested')
+    ] // Post-CSS options: https://github.com/postcss/postcss/blob/master/docs/plugins.md
 });
 
 mix.extract([
-	'vue',
-	'vuex',
-	'moment',
-	'moment-duration-format',
-	'favico.js',
-	'setimmediate',
-	'process'
+    'vue',
+    'vuex',
+    'moment',
+    'moment-duration-format',
+    'favico.js',
+    'setimmediate',
+    'process'
 ], 'js/vendor.js');
 
 mix.disableNotifications();
 
 if (mix.inProduction()) {
-	mix.version();
+    mix.version();
 } else {
-/*	mix.version().webpackConfig({
-		devtool: 'cheap-module-source-map'
-	});
-*/
-	// https://browsersync.io/docs/options
-	/*mix.browserSync({
-		proxy: 'timer-vue.local'
-	});*/
+    /*	mix.version().webpackConfig({
+            devtool: 'cheap-module-source-map'
+        });
+    */
+    // https://browsersync.io/docs/options
+    /*mix.browserSync({
+        proxy: 'timer-vue.local'
+    });*/
 }
 
 // Full API

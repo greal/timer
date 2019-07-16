@@ -25,47 +25,6 @@ let favicon = new Favico({
     animation: `fade`
 });
 
-// Управление аудио
-/* const timerAlert = {
-    start(id) {
-        this.stopAll(() => {
-            if (document.getElementById(`song` + id)) {
-                document.getElementById(`song` + id).play();
-            } else {
-                let a = document.createElement(`audio`);
-                a.src = `../audio/${id}.mp3`;
-                a.volume = 0.75;
-                a.setAttribute(`autoplay`, true);
-                a.setAttribute(`loop`, true);
-                a.setAttribute(`id`, `song${id}`);
-                document.body.appendChild(a);
-            }
-        });
-    },
-    stop(id) {
-        let song = document.getElementById(`song${id}`);
-        if (song && song.duration > 0 && !song.paused) {
-            song.pause();
-            song.currentTime = 0;
-        }
-    },
-    stopAll(fn) {
-        let songs = document.querySelectorAll(`audio[id^=song]`);
-        songs = [].slice.call(songs); // IE
-        songs.forEach(function (song) {
-            if (song.duration > 0 && !song.paused) {
-                song.pause();
-                song.currentTime = 0;
-
-                // var songId = /[\d]+/g.exec(song.getAttribute('id'));
-                // $('.js-Timer-song[value=' + songId + ']').prop('checked', false);
-            }
-        });
-
-        fn();
-    }
-}; */
-
 const app = new Vue({
     store,
     created() {

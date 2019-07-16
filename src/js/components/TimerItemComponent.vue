@@ -39,13 +39,11 @@ import {timeSecond2Human} from "../functions";
 export default {
     name: `TimerItemComponent`,
     store,
-    created() {
-        // this.$store.dispatch('timer/getRequisites')
-        // console.log(this.getTimer);
-    },
+
     props: {
         timerId: Number
     },
+
     computed: {
         getTimer() {
             return this.$store.getters[`timer/findTimer`](this.timerId);
@@ -87,19 +85,15 @@ export default {
                 // Включить уведомление
                 this.notify();
 
-                // Добавить уведомление в favicon и title
-                // faviconBadge++;
-                // handlerNotify();
-
                 // Остановить таймер
                 // timerState(timer.id, false);
             }
 
-            // console.log("getTimer: ", timer);
+            console.log(`getTimer: `, timer);
         },
 
         getActive(value) {
-            // console.log("getActive: ", value);
+            console.log(`getActive: `, value);
         }
     },
 
@@ -116,25 +110,7 @@ export default {
             this.$root.$emit(`toggleTimer`, this.timerId);
         },
         reset() {
-            // Убрать цвет просрочки
-            // timerItem.removeClass('Timer__item--overdue');
-            // Остановка таймера
-            // if (storeTimer.isset(id)) {
-            // 	timerState(id, false);
-            // }
-            // Сброс
-            // var timers = store.get('timers', []);
-            // timers.map(function (timer) {
-            // 	if (timer.id === id) {
-            // 		timer.isActive = false;
-            // 		timer.passed = 0;
-            //
-            // 		// Выключение мелодии
-            // 		timerAlert.stop(timer.songId);
-            // 	}
-            // 	return timer;
-            // });
-            // store.set('timers', timers);
+            this.$root.$emit(`resetTimer`, this.timerId);
         },
 
         // Подсчет процента выполнения
@@ -151,7 +127,6 @@ export default {
 
             // Включить звук уведомления
             this.$root.$emit(`playSong`, {
-                timerId: this.timerId,
                 songId: this.getSong.id,
                 isPlay: this.isPlaySong
             });

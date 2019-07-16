@@ -64,46 +64,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -118,13 +78,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         this.hour = timeFormat[0];
         this.minute = timeFormat[1];
         this.second = timeFormat[2];
-        this.songId = !!value.song ? value.song.id : this.songs[0].id;
+        this.song = value.song ? value.song : this.songs[0];
         this.name = value.name;
       } else {
         this.hour = 0;
         this.minute = 0;
         this.second = 0;
-        this.songId = this.songs[0].id;
+        this.song = this.songs[0];
         this.name = "";
       }
     },
@@ -144,7 +104,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   data: function data() {
     return {
       name: "",
-      songId: null,
+      song: null,
       hour: 0,
       minute: 0,
       second: 0
@@ -152,7 +112,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   },
   methods: {
     saveTimer: function saveTimer() {
-      this.$root.$emit("saveTimer", this.$data);
+      // @TODO Валидация
+      this.$root.$emit("saveTimer", Object.assign(this.$data, {
+        id: this.timerId
+      }));
     },
     closeModal: function closeModal() {
       this.$root.$emit("closeModal");
@@ -160,7 +123,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     listenSong: function listenSong(e) {
       this.$root.$emit("listenSong", {
         isPlay: e.target.checked,
-        songId: this.songId
+        song: this.song
       });
     }
   }
@@ -201,6 +164,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 //
 //
 //
+//
+//
 
 
 
@@ -210,8 +175,9 @@ var timeCheck = new _timeChecker__WEBPACK_IMPORTED_MODULE_2__["default"]();
 var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_1__["AdjustingInterval"](function () {
   timeCheck.check();
 }, 1000, function () {
-  console.warn('The drift exceeded the interval.');
+  console.warn("The drift exceeded the interval.");
 });
+var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../audio/');
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TimerComponent",
   components: {
@@ -224,34 +190,52 @@ var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_1__["AdjustingInterv
     // Запуск общего таймера
     timerInstance.start(); // Сохранить таймер
 
-    this.$root.$on('saveTimer', function (data) {
-      _this.add(data);
+    this.$root.$on("saveTimer", function (data) {
+      _this.save(data);
     }); // Открыть окно
 
-    this.$root.$on('openModal', function (timerId) {
+    this.$root.$on("openModal", function (timerId) {
       _this.openModal(timerId);
     }); // Закрыть окно
 
-    this.$root.$on('closeModal', function () {
+    this.$root.$on("closeModal", function () {
       _this.isShowModal = false;
     }); // Прослушать звук
 
-    this.$root.$on('playSong', function (payload) {
-      console.log(payload);
+    this.$root.$on("playSong", function (payload) {
+      payload.isPlay ? timerSound.play(payload.songId) : timerSound.stop(payload.songId);
     }); // Вкл./Выкл. таймер
 
-    this.$root.$on('toggleTimer', function (id) {
+    this.$root.$on("toggleTimer", function (id) {
       _this.toggleTimer(id);
+
+      _this.stopSoundTimer(id);
     }); // Удалить таймер
 
-    this.$root.$on('removeTimer', function () {// console.log(payload);
+    this.$root.$on("removeTimer", function (id) {
+      if (_this.issetStartedTimer(id)) {
+        _this.removeStartedTimer(id);
+      }
+
+      _this.stopSoundTimer(id);
+
+      _this.removeTimer(id);
+    }); // Сброс таймера
+
+    this.$root.$on("resetTimer", function (id) {
+      _this.timerState(id, false);
+
+      _this.resetPassed(id);
+
+      _this.stopSoundTimer(id);
     }); // Если страница была перезагружена
 
+    var that = this;
     this.timers.filter(function (timer) {
       return timer.isActive === true;
     }).forEach(function (timer) {
-      // timerState(timer.id, true);
-      console.log('Reloaded: ', timer);
+      that.timerState(timer.id, true);
+      console.log("Reloaded: ", timer);
     });
   },
   computed: Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])({
@@ -267,9 +251,17 @@ var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_1__["AdjustingInterv
     };
   },
   methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
-    changeActivity: 'timer/changeActivity',
-    updatePassedTimer: 'timer/updatePassedTimer'
+    changeActivity: "timer/changeActivity",
+    resetPassed: "timer/resetPassed",
+    updatePassed: "timer/updatePassed",
+    saveTimer: "timer/saveTimer",
+    removeTimer: "timer/removeTimer"
   }), {
+    // Выключение мелодии
+    stopSoundTimer: function stopSoundTimer(id) {
+      var timer = this.getTimer(id);
+      timerSound.stop(timer.song.id);
+    },
     // Поиск запущенного таймера
     issetStartedTimer: function issetStartedTimer(id) {
       return timeCheck.cfg.checks.findIndex(function (item) {
@@ -279,75 +271,50 @@ var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_1__["AdjustingInterv
     // Процесс выполнения таймера
     timerProcess: function timerProcess(id) {
       // Поиск таймера
-      var timer = this.$store.getters['timer/findTimer'](id); // Обновить пройденное время таймера
+      var timer = this.getTimer(id); // Обновить пройденное время таймера
 
-      this.updatePassedTimer(timer);
-      console.log(id); // Прогресс бар
-      //var timeLeft = progressTimer(timer);
-      //if (timeLeft <= 0) {
-      // var timerItem = $('.Timer__item[data-id="' + timer.id + '"]');
-      // Включить уведомление
-      // timerItem
-      // 	.find('.js-Timer-song')
-      // 	.prop('checked', true)
-      // 	.change();
-      // Добавить уведомление в favicon и title
-      // faviconBadge++;
-      // handlerNotify();
-      // Цвет просрочки
-      // timerItem.addClass('Timer__item--overdue');
-      // Остановить таймер
-      // timerState(timer.id, false);
-      //}
+      this.updatePassed(timer);
+    },
+    // Получить данные таймера
+    getTimer: function getTimer(id) {
+      return this.$store.getters["timer/findTimer"](id);
+    },
+    // Добавить таймер
+    startTimer: function startTimer(id) {
+      var that = this;
+      timeCheck.cfg.checks.push({
+        id: id,
+        check: function check() {
+          return true;
+        },
+        action: function action() {
+          that.timerProcess(id);
+        }
+      }); // обновление
+
+      timeCheck.update();
+    },
+    // Удаление таймера
+    removeStartedTimer: function removeStartedTimer(id) {
+      timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) {
+        return item.id === id;
+      }), 1); // обновление
+
+      timeCheck.update();
     },
     toggleTimer: function toggleTimer(id) {
-      var that = this;
-      var isIssetTimer = that.issetStartedTimer(id); // Установка активности
-
-      that.changeActivity({
-        id: id,
-        isActive: !isIssetTimer
-      }); // Включить таймер
-
-      if (!isIssetTimer) {
-        // Добавление таймера
-        timeCheck.cfg.checks.push({
-          id: id,
-          check: function check() {
-            return true;
-          },
-          action: function action() {
-            that.timerProcess(id); // console.log(timeCheck.cfg.checks, id);
-          }
-        }); // обновление
-
-        timeCheck.renew();
-      } // Отключить таймер
-      else {
-          // Удаление таймера
-          timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) {
-            return item.id === id;
-          }), 1); // обновление
-
-          timeCheck.renew();
-        }
+      var isIssetTimer = this.issetStartedTimer(id);
+      this.timerState(id, !isIssetTimer);
     },
     // Смена состояния таймера
     timerState: function timerState(id, state) {
-      // Управление таймером
-      // state
-      // 	? storeTimer.start(id)
-      // 	: storeTimer.stop(id);
-      var timers = this.$root.$store.get('timers', []);
-      timers.map(function (item) {
-        if (item.id === id) {
-          item.isActive = state;
-        }
-
-        return item;
+      // Установка активности
+      this.changeActivity({
+        id: id,
+        isActive: state
       });
-      this.$root.$store.set('timers', timers); // Смена состояния кнопки
-      // actionBtnState(id, state);
+      state ? this.startTimer(id) // Включить таймер
+      : this.removeStartedTimer(id); // Отключить таймер
     },
     // Открыть окно
     openModal: function openModal() {
@@ -355,8 +322,10 @@ var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_1__["AdjustingInterv
       this.modalTimerId = timerId;
       this.isShowModal = true;
     },
-    add: function add(data) {
-      console.log(data);
+    // Сохранение таймера
+    save: function save(data) {
+      this.saveTimer(data);
+      this.$root.$emit("closeModal");
     }
   })
 });
@@ -413,9 +382,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TimerItemComponent",
   store: _store__WEBPACK_IMPORTED_MODULE_0__["default"],
-  created: function created() {// this.$store.dispatch('timer/getRequisites')
-    // console.log(this.getTimer);
-  },
   props: {
     timerId: Number
   },
@@ -458,15 +424,14 @@ __webpack_require__.r(__webpack_exports__);
 
       if (!this.timeLeft) {
         // Включить уведомление
-        this.notify(); // Добавить уведомление в favicon и title
-        // faviconBadge++;
-        // handlerNotify();
-        // Остановить таймер
+        this.notify(); // Остановить таймер
         // timerState(timer.id, false);
-      } // console.log("getTimer: ", timer);
+      }
 
+      console.log("getTimer: ", timer);
     },
-    getActive: function getActive(value) {// console.log("getActive: ", value);
+    getActive: function getActive(value) {
+      console.log("getActive: ", value);
     }
   },
   methods: {
@@ -481,25 +446,8 @@ __webpack_require__.r(__webpack_exports__);
     toggle: function toggle() {
       this.$root.$emit("toggleTimer", this.timerId);
     },
-    reset: function reset() {// Убрать цвет просрочки
-      // timerItem.removeClass('Timer__item--overdue');
-      // Остановка таймера
-      // if (storeTimer.isset(id)) {
-      // 	timerState(id, false);
-      // }
-      // Сброс
-      // var timers = store.get('timers', []);
-      // timers.map(function (timer) {
-      // 	if (timer.id === id) {
-      // 		timer.isActive = false;
-      // 		timer.passed = 0;
-      //
-      // 		// Выключение мелодии
-      // 		timerAlert.stop(timer.songId);
-      // 	}
-      // 	return timer;
-      // });
-      // store.set('timers', timers);
+    reset: function reset() {
+      this.$root.$emit("resetTimer", this.timerId);
     },
     // Подсчет процента выполнения
     calcProgressValue: function calcProgressValue() {
@@ -511,7 +459,6 @@ __webpack_require__.r(__webpack_exports__);
       this.isPlaySong ^= true; // Включить звук уведомления
 
       this.$root.$emit("playSong", {
-        timerId: this.timerId,
         songId: this.getSong.id,
         isPlay: this.isPlaySong
       });
@@ -809,8 +756,8 @@ var render = function() {
                     {
                       name: "model",
                       rawName: "v-model.number",
-                      value: _vm.songId,
-                      expression: "songId",
+                      value: _vm.song,
+                      expression: "song",
                       modifiers: { number: true }
                     }
                   ],
@@ -826,7 +773,7 @@ var render = function() {
                           var val = "_value" in o ? o._value : o.value
                           return _vm._n(val)
                         })
-                      _vm.songId = $event.target.multiple
+                      _vm.song = $event.target.multiple
                         ? $$selectedVal
                         : $$selectedVal[0]
                     }
@@ -835,10 +782,7 @@ var render = function() {
                 _vm._l(_vm.songs, function(song) {
                   return _c(
                     "option",
-                    {
-                      key: "song-modal-" + song.id,
-                      domProps: { value: song.id }
-                    },
+                    { key: "song-modal-" + song.id, domProps: { value: song } },
                     [_vm._v(_vm._s(song.title))]
                   )
                 }),
@@ -951,7 +895,7 @@ var render = function() {
           },
           [
             _c("span", { staticClass: "Icon Icon--add" }),
-            _vm._v(" Добавить таймер")
+            _vm._v(" Добавить таймер\n    ")
           ]
         )
       ]),
@@ -1483,48 +1427,7 @@ if (typeof document.hidden !== "undefined") {
 var faviconBadge = 0;
 var favicon = new favico_js__WEBPACK_IMPORTED_MODULE_3___default.a({
   animation: "fade"
-}); // Управление аудио
-
-/* const timerAlert = {
-    start(id) {
-        this.stopAll(() => {
-            if (document.getElementById(`song` + id)) {
-                document.getElementById(`song` + id).play();
-            } else {
-                let a = document.createElement(`audio`);
-                a.src = `../audio/${id}.mp3`;
-                a.volume = 0.75;
-                a.setAttribute(`autoplay`, true);
-                a.setAttribute(`loop`, true);
-                a.setAttribute(`id`, `song${id}`);
-                document.body.appendChild(a);
-            }
-        });
-    },
-    stop(id) {
-        let song = document.getElementById(`song${id}`);
-        if (song && song.duration > 0 && !song.paused) {
-            song.pause();
-            song.currentTime = 0;
-        }
-    },
-    stopAll(fn) {
-        let songs = document.querySelectorAll(`audio[id^=song]`);
-        songs = [].slice.call(songs); // IE
-        songs.forEach(function (song) {
-            if (song.duration > 0 && !song.paused) {
-                song.pause();
-                song.currentTime = 0;
-
-                // var songId = /[\d]+/g.exec(song.getAttribute('id'));
-                // $('.js-Timer-song[value=' + songId + ']').prop('checked', false);
-            }
-        });
-
-        fn();
-    }
-}; */
-
+});
 var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
   store: _store__WEBPACK_IMPORTED_MODULE_1__["default"],
   created: function created() {
@@ -1784,7 +1687,7 @@ __webpack_require__.r(__webpack_exports__);
 /*!*****************************!*\
   !*** ./src/js/functions.js ***!
   \*****************************/
-/*! exports provided: IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human, default */
+/*! exports provided: IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human, time2Second, TimerSound, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1793,6 +1696,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AdjustingInterval", function() { return AdjustingInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeStr2Array", function() { return timeStr2Array; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeSecond2Human", function() { return timeSecond2Human; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "time2Second", function() { return time2Second; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TimerSound", function() { return TimerSound; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -1942,11 +1847,135 @@ function timeSecond2Human(seconds) {
     trim: false
   });
 }
+/**
+ * Преобразовать время в секунды
+ *
+ * @export
+ * @param {Number} hour
+ * @param {Number} minute
+ * @param {Number} second
+ * @return {Number}
+ */
+
+function time2Second(hour, minute, second) {
+  var begin = moment.duration({
+    hours: hour,
+    minutes: minute,
+    seconds: second
+  }).asSeconds();
+  return begin;
+}
+/**
+ * Управление аудио
+ *
+ * @export
+ * @class TimerSound
+ */
+
+var TimerSound =
+/*#__PURE__*/
+function () {
+  /**
+   * Creates an instance of TimerSound.
+   * @param {String} [path='']
+   * @memberof TimerSound
+   */
+  function TimerSound() {
+    var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+
+    _classCallCheck(this, TimerSound);
+
+    this.path = path;
+  }
+  /**
+   * Запуск аудио
+   *
+   * @param {Number|String} id
+   * @memberof TimerSound
+   */
+
+
+  _createClass(TimerSound, [{
+    key: "play",
+    value: function play(id) {
+      var _this3 = this;
+
+      this.stopAll(function () {
+        var el = document.getElementById("sound-".concat(id));
+
+        if (el) {
+          el.play();
+        } else {
+          var a = document.createElement("audio");
+          a.src = "".concat(_this3.path).concat(id, ".mp3");
+          a.volume = 0.75;
+          a.setAttribute("autoplay", true);
+          a.setAttribute("loop", true);
+          a.setAttribute("id", "sound-".concat(id));
+          document.body.appendChild(a);
+        }
+      });
+    }
+    /**
+     * Остановка аудио
+     *
+     * @param {Number|String} id
+     * @memberof TimerSound
+     */
+
+  }, {
+    key: "stop",
+    value: function stop(id) {
+      var sound = document.getElementById("sound-".concat(id));
+
+      this._stopSong(sound);
+    }
+    /**
+     * Остановка аудио
+     *
+     * @param {HTMLElement|null} el
+     * @memberof TimerSound
+     */
+
+  }, {
+    key: "_stopSong",
+    value: function _stopSong(el) {
+      if (el && el.duration > 0 && !el.paused) {
+        el.pause();
+        el.currentTime = 0;
+      }
+    }
+    /**
+     * Остановка всех аудио
+     *
+     * @param {TimerSound~callback} fn
+     * @memberof TimerSound
+     */
+
+  }, {
+    key: "stopAll",
+    value: function stopAll(fn) {
+      var _this4 = this;
+
+      var sounds = document.querySelectorAll("audio[id^=sound-]");
+      sounds = [].slice.call(sounds); // IE
+
+      sounds.forEach(function (sound) {
+        _this4._stopSong(sound);
+      });
+      fn();
+    }
+  }]);
+
+  return TimerSound;
+}();
 /* harmony default export */ __webpack_exports__["default"] = ({
   IDGenerator: IDGenerator,
   AdjustingInterval: AdjustingInterval,
   timeStr2Array: timeStr2Array,
-  timeSecond2Human: timeSecond2Human
+  timeSecond2Human: timeSecond2Human,
+  time2Second: time2Second,
+  TimerSound: TimerSound
 });
 
 /***/ }),
@@ -1988,9 +2017,7 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _StoreSelector__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../StoreSelector */ "./src/js/StoreSelector.js");
 /* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../functions */ "./src/js/functions.js");
-function _readOnlyError(name) { throw new Error("\"" + name + "\" is read-only"); }
-
-/* eslint no-shadow: ["error", { "allow": ["state", "timers"] }]*/
+/* eslint no-shadow: ["error", { "allow": ["state", "timers", "getters"] }]*/
 
  // initial state
 
@@ -2056,9 +2083,9 @@ if (!timers.length) {
 } // Установка таймеров в state
 
 
-state = (_readOnlyError("state"), Object.assign(state, {
+state = Object.assign(state, {
   timers: timers
-})); // getters
+}); // getters
 
 var getters = {
   // Поиск таймера
@@ -2073,7 +2100,7 @@ var getters = {
 
 var actions = {
   // Обновить пройденное время таймера
-  updatePassedTimer: function updatePassedTimer(_ref, timer) {
+  updatePassed: function updatePassed(_ref, timer) {
     var commit = _ref.commit,
         state = _ref.state;
     var newTimers = state.timers.map(function (item) {
@@ -2099,6 +2126,59 @@ var actions = {
       return item;
     });
     commit("updateTimersStore", newTimers);
+  },
+  // Сброс пройденного времени
+  resetPassed: function resetPassed(_ref4, id) {
+    var commit = _ref4.commit,
+        state = _ref4.state;
+    var newTimers = state.timers.map(function (item) {
+      if (item.id === id) {
+        item.passed = 0;
+      }
+
+      return item;
+    });
+    commit("updateTimersStore", newTimers);
+  },
+  // Удаление таймера
+  removeTimer: function removeTimer(_ref5, id) {
+    var commit = _ref5.commit,
+        state = _ref5.state;
+    var newTimers = state.timers.filter(function (item) {
+      return item.id !== id;
+    });
+    commit("updateTimersStore", newTimers);
+  },
+  // Сохранение таймера
+  saveTimer: function saveTimer(_ref6, data) {
+    var commit = _ref6.commit,
+        state = _ref6.state,
+        getters = _ref6.getters;
+    var begin = Object(_functions__WEBPACK_IMPORTED_MODULE_1__["time2Second"])(data.hour, data.minute, data.second);
+    var timer = getters.findTimer(data.id);
+
+    if (timer) {
+      var newTimers = state.timers.map(function (item) {
+        if (item.id === data.id) {
+          item.name = data.name;
+          item.song = data.song;
+          item.begin = begin;
+          item.passed = 0; // Сброс пройденного времени
+        }
+
+        return item;
+      });
+      commit("updateTimersStore", newTimers);
+    } else {
+      var _generator = new _functions__WEBPACK_IMPORTED_MODULE_1__["IDGenerator"]();
+
+      commit("addTimerStore", Object.assign(state.defaultParams, {
+        id: _generator.generate(),
+        name: data.name,
+        song: data.song,
+        begin: begin
+      }));
+    }
   }
 }; // mutations
 
@@ -2106,7 +2186,12 @@ var mutations = {
   // Обновить таймеры
   updateTimersStore: function updateTimersStore(state, timers) {
     state.timers = timers;
-    StoreTimers.set("timers", timers);
+    StoreTimers.set("timers", state.timers);
+  },
+  // Добавить таймер
+  addTimerStore: function addTimerStore(state, timer) {
+    state.timers.push(timer);
+    StoreTimers.set("timers", state.timers);
   }
 };
 /* harmony default export */ __webpack_exports__["default"] = ({
@@ -2142,23 +2227,22 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  *
  * infinity - boolean, true - выполнять бесконечно, false - только один раз
 
-	// если эта функция вернёт true,
-	// проверки сбросятся в исходное состояние
-	// dateOld — объект даты прошлой проверки
-	// dateNew — объект даты текущей проверки
-	renewCheck: function (dateOld, dateNew) {},
+    // если эта функция вернёт true,
+    // проверки сбросятся в исходное состояние
+    // dateOld — объект даты прошлой проверки
+    // dateNew — объект даты текущей проверки
+    updateCheck: function (dateOld, dateNew) {},
 
-	// массив проверок
-	checks: [
-		{
-
-			// если check вернёт true
-			// сработает action
-			// date — объект текущего времени
-			check: function (date) {},
-			action: function () {}
-		}
-	]
+    // массив проверок
+    checks: [
+        {
+            // если check вернёт true
+            // сработает action
+            // date — объект текущего времени
+            check: function (date) {},
+            action: function () {}
+        }
+    ]
 }
  */
 // полнейшее клонирование объекта
@@ -2193,7 +2277,7 @@ function clone(obj) {
     copy = {};
 
     for (var attr in obj) {
-      if (obj.hasOwnProperty(attr)) {
+      if (Object.prototype.hasOwnProperty.call(obj, attr)) {
         copy[attr] = clone(obj[attr]);
       }
     }
@@ -2212,7 +2296,7 @@ function () {
       // Бесконечно выполнять
       infinity: true,
       // если эта функция вернёт true, проверки сбросятся в исходное состояние
-      renewCheck: function renewCheck() {
+      updateCheck: function updateCheck() {
         return false;
       },
       // Массив с проверками
@@ -2243,8 +2327,8 @@ function () {
     } // обновление проверок
 
   }, {
-    key: "renew",
-    value: function renew() {
+    key: "update",
+    value: function update() {
       this.cfgTmp = clone(this.cfg);
     } // получение даты
 
@@ -2263,8 +2347,8 @@ function () {
       var that = this;
       var date = this.getDate();
 
-      if (this.cfg.renewCheck(this.dateOld, date)) {
-        this.renew();
+      if (this.cfg.updateCheck(this.dateOld, date)) {
+        this.update();
       }
 
       this.cfgTmp.checks.forEach(function (item, i) {

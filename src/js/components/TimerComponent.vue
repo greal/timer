@@ -1,209 +1,195 @@
 <template>
-	<div class="Timer">
-		<template v-if="timers.length">
-			<timer-item v-for="item in timers" :key="item.id" :timer-id="item.id"></timer-item>
-		</template>
-		<div v-else class="Timer__item">
-			<div class="Timer__empty">У вас нет ни одного таймера!</div>
-		</div>
-		<div class="Timer__footer">
-			<a @click.prevent="openModal()" class="Btn Btn--default js-Modal-add" href="#"><span class="Icon Icon--add"></span> Добавить таймер</a>
-		</div>
-		<modal v-show="isShowModal" :timerId="modalTimerId"></modal>
-	</div>
+  <div class="Timer">
+    <template v-if="timers.length">
+      <timer-item v-for="item in timers" :key="item.id" :timer-id="item.id"></timer-item>
+    </template>
+    <div v-else class="Timer__item">
+      <div class="Timer__empty">У вас нет ни одного таймера!</div>
+    </div>
+    <div class="Timer__footer">
+      <a @click.prevent="openModal()" class="Btn Btn--default js-Modal-add" href="#">
+        <span class="Icon Icon--add"></span> Добавить таймер
+      </a>
+    </div>
+    <modal v-show="isShowModal" :timerId="modalTimerId"></modal>
+  </div>
 </template>
 
 <script>
+import {mapState, mapActions} from "vuex";
+import {AdjustingInterval, TimerSound} from "../functions";
+import timeChecker from "../timeChecker";
+import Modal from "./ModalComponent";
+import TimerItem from "./TimerItemComponent";
 
-	import { mapState, mapActions } from 'vuex'
+const timeCheck = new timeChecker();
+const timerInstance = new AdjustingInterval(() => {
+    timeCheck.check();
+}, 1000, () => {
+    console.warn(`The drift exceeded the interval.`);
+});
 
-	import { AdjustingInterval } from '../functions';
-	import timeChecker from '../timeChecker';
-	import Modal from './ModalComponent';
-	import TimerItem from './TimerItemComponent';
+const timerSound = new TimerSound('../audio/');
 
-	const timeCheck = new timeChecker();
-	const timerInstance = new AdjustingInterval(() => {
-		timeCheck.check()
-	}, 1000, () => {
-		console.warn('The drift exceeded the interval.');
-	});
+export default {
+    name: `TimerComponent`,
+    components: {
+        TimerItem,
+        Modal
+    },
+    created() {
+        // Запуск общего таймера
+        timerInstance.start();
 
-	export default {
-		name: "TimerComponent",
-		components: {
-			TimerItem,
-			Modal
-		},
-		created() {
+        // Сохранить таймер
+        this.$root.$on(`saveTimer`, (data) => {
+            this.save(data);
+        });
 
-			// Запуск общего таймера
-			timerInstance.start();
+        // Открыть окно
+        this.$root.$on(`openModal`, (timerId) => {
+            this.openModal(timerId);
+        });
 
-			// Сохранить таймер
-			this.$root.$on('saveTimer', (data) => {
-				this.add(data);
-			});
+        // Закрыть окно
+        this.$root.$on(`closeModal`, () => {
+            this.isShowModal = false;
+        });
 
-			// Открыть окно
-			this.$root.$on('openModal', timerId => {
-				this.openModal(timerId);
-			});
+        // Прослушать звук
+        this.$root.$on(`playSong`, (payload) => {
+            payload.isPlay 
+                ? timerSound.play(payload.songId)
+                : timerSound.stop(payload.songId);
+        });
 
-			// Закрыть окно
-			this.$root.$on('closeModal', () => {
-				this.isShowModal = false
-			});
+        // Вкл./Выкл. таймер
+        this.$root.$on(`toggleTimer`, (id) => {
+            this.toggleTimer(id);
+            this.stopSoundTimer(id);
+        });
 
-			// Прослушать звук
-			this.$root.$on('playSong', payload => {
-				console.log(payload);
-			});
+        // Удалить таймер
+        this.$root.$on(`removeTimer`, (id) => {
+            if (this.issetStartedTimer(id)) {
+                this.removeStartedTimer(id);
+            }
+            this.stopSoundTimer(id);
+            this.removeTimer(id);            
+        });
 
-			// Вкл./Выкл. таймер
-			this.$root.$on('toggleTimer', id => {
-				this.toggleTimer(id);
-			});
+        // Сброс таймера
+        this.$root.$on(`resetTimer`, (id) => {
+            this.timerState(id, false);
+            this.resetPassed(id);
+            this.stopSoundTimer(id);
+        });
 
-			// Удалить таймер
-			this.$root.$on('removeTimer', () => {
-				// console.log(payload);
-			});
+        // Если страница была перезагружена
+        let that = this;
+        this.timers
+            .filter((timer) => timer.isActive === true)
+            .forEach((timer) => {
+                that.timerState(timer.id, true);
 
-			// Если страница была перезагружена
-			this.timers.filter(timer => timer.isActive === true).forEach(function (timer) {
-				// timerState(timer.id, true);
+                console.log(`Reloaded: `, timer);
+            });
+    },
+    computed: mapState({
+        timers: (state) => state.timer.timers
+    }),
+    data: () => ({
+        // Показать модальное окно
+        isShowModal: false,
+        modalTimerId: null
+    }),
+    methods: {
+        ...mapActions({
+            changeActivity: `timer/changeActivity`,
+            resetPassed: `timer/resetPassed`,
+            updatePassed: `timer/updatePassed`,
+            saveTimer: `timer/saveTimer`,
+            removeTimer: `timer/removeTimer`
+        }),
 
-				console.log('Reloaded: ', timer);
-			});
+        // Выключение мелодии
+        stopSoundTimer(id) {
+            let timer = this.getTimer(id);
+            timerSound.stop(timer.song.id);
+        },
 
-		},
+        // Поиск запущенного таймера
+        issetStartedTimer(id) {
+            return timeCheck.cfg.checks.findIndex((item) => item.id === id) !== -1;
+        },
 
-		computed: mapState({
-			timers: state => state.timer.timers,
-		}),
+        // Процесс выполнения таймера
+        timerProcess(id) {
+            // Поиск таймера
+            let timer = this.getTimer(id);
 
-		data: () => ({
-			// Показать модальное окно
-			isShowModal: false,
+            // Обновить пройденное время таймера
+            this.updatePassed(timer);
+        },
 
-			modalTimerId: null
-		}),
+        // Получить данные таймера
+        getTimer(id) {
+            return this.$store.getters[`timer/findTimer`](id);
+        },
 
-		methods: {
+        // Добавить таймер
+        startTimer(id) {
+            let that = this;
+            timeCheck.cfg.checks.push({
+                id: id,
+                check: () => true,
+                action: () => {
+                    that.timerProcess(id);
+                }
+            });
 
-			...mapActions({
-				changeActivity: 'timer/changeActivity',
-				updatePassedTimer: 'timer/updatePassedTimer',
-			}),
+            // обновление
+            timeCheck.update();
+        },
 
-			// Поиск запущенного таймера
-			issetStartedTimer(id) {
-				return timeCheck.cfg.checks.findIndex(item => item.id === id) !== -1;
-			},
+        // Удаление таймера
+        removeStartedTimer(id) {
+            timeCheck.cfg.checks.splice(
+                timeCheck.cfg.checks.findIndex((item) => item.id === id),
+                1
+            );
 
-			// Процесс выполнения таймера
-			timerProcess(id) {
+            // обновление
+            timeCheck.update();
+        },
 
-				// Поиск таймера
-				let timer = this.$store.getters['timer/findTimer'](id);
+        toggleTimer(id) {
+            let isIssetTimer = this.issetStartedTimer(id);
 
-				// Обновить пройденное время таймера
-				this.updatePassedTimer(timer);
+            this.timerState(id, !isIssetTimer);
+        },
 
-				console.log(id);
+        // Смена состояния таймера
+        timerState(id, state) {
+            // Установка активности
+            this.changeActivity({id, isActive: state});
 
-				// Прогресс бар
-				//var timeLeft = progressTimer(timer);
-				//if (timeLeft <= 0) {
+            state
+                ? this.startTimer(id) // Включить таймер
+                : this.removeStartedTimer(id); // Отключить таймер
+        },
 
-					// var timerItem = $('.Timer__item[data-id="' + timer.id + '"]');
+        // Открыть окно
+        openModal(timerId = null) {
+            this.modalTimerId = timerId;
+            this.isShowModal = true;
+        },
 
-					// Включить уведомление
-					// timerItem
-					// 	.find('.js-Timer-song')
-					// 	.prop('checked', true)
-					// 	.change();
-
-					// Добавить уведомление в favicon и title
-					// faviconBadge++;
-					// handlerNotify();
-
-					// Цвет просрочки
-					// timerItem.addClass('Timer__item--overdue');
-
-					// Остановить таймер
-					// timerState(timer.id, false);
-				//}
-			},
-
-			toggleTimer(id) {
-				let that = this;
-				const isIssetTimer = that.issetStartedTimer(id);
-
-				// Установка активности
-				that.changeActivity({ id, isActive: !isIssetTimer });
-
-				// Включить таймер
-				if (!isIssetTimer) {
-
-					// Добавление таймера
-					timeCheck.cfg.checks.push({
-						id: id,
-						check: () => true,
-						action: () => {
-							that.timerProcess(id);
-							// console.log(timeCheck.cfg.checks, id);
-						}
-					});
-
-					// обновление
-					timeCheck.renew();
-				}
-
-				// Отключить таймер
-				else {
-
-					// Удаление таймера
-					timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(item =>item.id === id), 1);
-
-					// обновление
-					timeCheck.renew();
-				}
-			},
-
-			// Смена состояния таймера
-			timerState(id, state) {
-
-				// Управление таймером
-				// state
-				// 	? storeTimer.start(id)
-				// 	: storeTimer.stop(id);
-
-				let timers = this.$root.$store.get('timers', []);
-				timers.map((item) => {
-					if (item.id === id) {
-						item.isActive = state;
-					}
-					return item;
-				});
-				this.$root.$store.set('timers', timers);
-
-				// Смена состояния кнопки
-				// actionBtnState(id, state);
-			},
-
-			// Открыть окно
-			openModal(timerId = null) {
-				this.modalTimerId = timerId;
-				this.isShowModal = true;
-			},
-
-
-
-			add(data) {
-				console.log(data);
-			}
-		}
-	}
+        // Сохранение таймера
+        save(data) {
+            this.saveTimer(data);
+            this.$root.$emit(`closeModal`);
+        }
+    }
+};
 </script>

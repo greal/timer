@@ -112,4 +112,108 @@ export function timeSecond2Human(seconds) {
 }
 
 
-export default {IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human};
+/**
+ * Преобразовать время в секунды
+ *
+ * @export
+ * @param {Number} hour
+ * @param {Number} minute
+ * @param {Number} second
+ * @return {Number}
+ */
+export function time2Second(hour, minute, second) {
+    let begin = moment.duration({ 
+        hours: hour, 
+        minutes: minute, 
+        seconds: second 
+    }).asSeconds();
+
+    return begin;
+}
+
+
+/**
+ * Управление аудио
+ *
+ * @export
+ * @class TimerSound
+ */
+export class TimerSound {
+
+    /**
+     * Creates an instance of TimerSound.
+     * @param {String} [path='']
+     * @memberof TimerSound
+     */
+    constructor(path = '') {
+        this.path = path;
+    }
+
+    /**
+     * Запуск аудио
+     *
+     * @param {Number|String} id
+     * @memberof TimerSound
+     */
+    play(id) {
+        this.stopAll(() => {
+            let el = document.getElementById(`sound-${id}`);
+            if (el) {
+                el.play();
+            } else {
+                let a = document.createElement(`audio`);
+                a.src = `${this.path}${id}.mp3`;
+                a.volume = 0.75;
+                a.setAttribute(`autoplay`, true);
+                a.setAttribute(`loop`, true);
+                a.setAttribute(`id`, `sound-${id}`);
+                document.body.appendChild(a);
+            }
+        });
+    }
+
+    
+    /**
+     * Остановка аудио
+     *
+     * @param {Number|String} id
+     * @memberof TimerSound
+     */
+    stop(id) {
+        let sound = document.getElementById(`sound-${id}`);
+        this._stopSong(sound);
+    }
+
+
+    /**
+     * Остановка аудио
+     *
+     * @param {HTMLElement|null} el
+     * @memberof TimerSound
+     */
+    _stopSong(el) {
+        if (el && el.duration > 0 && !el.paused) {
+            el.pause();
+            el.currentTime = 0;
+        }
+    }
+
+
+    /**
+     * Остановка всех аудио
+     *
+     * @param {TimerSound~callback} fn
+     * @memberof TimerSound
+     */
+    stopAll(fn) {
+        let sounds = document.querySelectorAll(`audio[id^=sound-]`);
+        sounds = [].slice.call(sounds); // IE
+        sounds.forEach((sound) => {
+            this._stopSong(sound);
+        });
+
+        fn();
+    }
+}
+
+export default {IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human, time2Second, TimerSound};
