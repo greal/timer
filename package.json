@@ -18,6 +18,11 @@
     "eslint-plugin-vue": "^5.2.3",
     "laravel-mix": "^4.0.16",
     "postcss-nested": "^4.1.2",
+    "stylelint": "^10.1.0",
+    "stylelint-config-rational-order": "^0.1.2",
+    "stylelint-config-standard": "^18.3.0",
+    "stylelint-order": "^3.0.1",
+    "stylelint-webpack-plugin": "^0.10.5",
     "vue-template-compiler": "^2.6.10",
     "webpack-bundle-analyzer": "^3.3.2"
   },

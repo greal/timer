@@ -100,19 +100,6 @@ export function timeStr2Array(time) {
 
 
 /**
- * Преобразовать секунды в 00:00:00
- *
- * @export
- * @param {Number} seconds
- * @return {String}
- */
-export function timeSecond2Human(seconds) {
-    let duration = moment.duration(seconds, `seconds`);
-    return duration.format(`hh:mm:ss`, {trim: false});
-}
-
-
-/**
  * Преобразовать время в секунды
  *
  * @export
@@ -212,8 +199,10 @@ export class TimerSound {
             this._stopSong(sound);
         });
 
-        fn();
+        if (fn) {
+            fn();
+        }
     }
 }
 
-export default {IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human, time2Second, TimerSound};
+export default {IDGenerator, AdjustingInterval, timeStr2Array, time2Second, TimerSound};

@@ -32,7 +32,7 @@
                 <option v-for="song in songs" :key="`song-modal-${song.id}`" :value="song">{{song.title}}</option>
               </select>
               <span class="BtnAudio">
-                <input @change="listenSong" type="checkbox" value="1" id="BtnAudio" name="listenAudio">
+                <input type="checkbox" id="BtnAudio" name="listenAudio" @change="playSound()" :checked="isPlaySong">
                 <label for="BtnAudio">Прослушать</label>
               </span>
             </div>
@@ -53,9 +53,22 @@ import {timeStr2Array} from "../functions";
 
 export default {
     name: `ModalComponent`,
+
     props: {
         timerId: Number
     },
+
+    created() {
+        if (!this.timerId) {
+            let defaultParams = this.$store.getters[`timer/getDefaultParams`];
+            this.hour = 0;
+            this.minute = 10;
+            this.second = 0;
+            this.song = this.songs[0];
+            this.name = defaultParams.name;
+        }
+    },
+
     watch: {
         getTimer(value) {
             if (value) {
@@ -73,10 +86,12 @@ export default {
                 this.name = ``;
             }
         },
-        songId() {
-            this.$root.$emit(`pauseSong`);
+        song() {
+            this.$root.$emit(`stopSong`);
+            this.isPlaySong = false;
         }
     },
+
     computed: {
         getTimer() {
             return this.$store.getters[`timer/findTimer`](this.timerId);
@@ -85,13 +100,16 @@ export default {
             songs: state => state.timer.songs
         })
     },
+
     data: () => ({
         name: ``,
         song: null,
         hour: 0,
         minute: 0,
-        second: 0
+        second: 0,
+        isPlaySong: false
     }),
+
     methods: {
         saveTimer() {
 
@@ -108,10 +126,15 @@ export default {
             this.$root.$emit(`closeModal`);
         },
 
-        listenSong(e) {
-            this.$root.$emit(`listenSong`, {
-                isPlay: e.target.checked,
-                song: this.song
+        // Управление звуком
+        playSound() {
+            // Признак включенного звука
+            this.isPlaySong ^= true;
+
+            // Включить звук уведомления
+            this.$root.$emit(`playSong`, {
+                songId: this.song.id,
+                isPlay: this.isPlaySong
             });
         }
     }

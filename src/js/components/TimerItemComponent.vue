@@ -1,7 +1,7 @@
 <template>
   <div :class="['Timer__item', {'Timer__item--overdue': !timeLeft}]">
     <div class="Timer__row">
-      <div class="Timer__counter" v-text="getCounterDyn">--:--:--</div>
+      <div class="Timer__counter">{{timeLeft | formatSecond2Human}}</div>
       <div class="Timer__controls">
         <button @click="toggle" :class="['Btn', {'Btn--green': !getActive}, {'Btn--red': getActive}]" v-text="!getActive ? `Старт` : `Стоп`" :disabled="!timeLeft"></button>
         <button @click="reset" class="Btn Btn--default" :disabled="!getPassed">Сброс</button>
@@ -9,9 +9,9 @@
     </div>
     <div class="Timer__row Timer__row--info">
       <span class="Timer__name" v-text="getName"></span>
-      <span class="Timer__value" v-text="getCounter">--:--:--</span>
+      <span class="Timer__value">{{getCounter | formatSecond2Human}}</span>
       <span class="BtnAudio">
-        <input type="checkbox" :id="`AudioCheck-${getSong.id}`" :name="`audioCheck_${getSong.id}`" @change="notify" :checked="isPlaySong">
+        <input type="checkbox" :id="`AudioCheck-${getSong.id}`" :name="`audioCheck_${getSong.id}`" @change="playSound()" :checked="isPlaySong">
         <label :for="`AudioCheck-${getSong.id}`">{{getSong.title}}</label>
       </span>
       <button @click="edit" class="Btn Btn--link Btn--edit">
@@ -32,13 +32,8 @@
 </template>
 
 <script>
-// import { mapState, mapActions } from 'vuex'
-import store from "../store";
-import {timeSecond2Human} from "../functions";
-
 export default {
     name: `TimerItemComponent`,
-    store,
 
     props: {
         timerId: Number
@@ -61,39 +56,39 @@ export default {
             return this.getTimer.song;
         },
         getCounter() {
-            return timeSecond2Human(this.getTimer.begin);
+            return this.getTimer.begin;
         },
-        getCounterDyn() {
-            return timeSecond2Human(this.timeLeft);
-        },
+
+        // Остаток времени
         timeLeft() {
             let timeLeft = this.getTimer.begin - this.getTimer.passed;
             return timeLeft > 0 ? timeLeft : 0;
+        },
+
+        // Подсчет процента выполнения
+        progressValue() {
+            return this.getTimer.passed
+                ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100))
+                : 100;
         }
     },
 
     data: () => ({
-        progressValue: 100,
         isPlaySong: false
     }),
 
     watch: {
-        getTimer(timer) {
-            this.calcProgressValue();
+        timeLeft(value) {
+            if (!value) {
+                // Включить звук уведомление
+                this.playSound();
 
-            if (!this.timeLeft) {
-                // Включить уведомление
-                this.notify();
+                // Favicon и title
+                this.$root.$emit(`addNotify`);
 
                 // Остановить таймер
-                // timerState(timer.id, false);
+                this.stop();
             }
-
-            console.log(`getTimer: `, timer);
-        },
-
-        getActive(value) {
-            console.log(`getActive: `, value);
         }
     },
 
@@ -101,27 +96,27 @@ export default {
         edit() {
             this.$root.$emit(`openModal`, this.timerId);
         },
+
         remove() {
             if (confirm(`Вы действительно хотите удалить таймер?`)) {
                 this.$root.$emit(`removeTimer`, this.timerId);
             }
         },
+
         toggle() {
             this.$root.$emit(`toggleTimer`, this.timerId);
         },
+
+        stop() {
+            this.$root.$emit(`stopTimer`, this.timerId);
+        },
+
         reset() {
             this.$root.$emit(`resetTimer`, this.timerId);
         },
 
-        // Подсчет процента выполнения
-        calcProgressValue() {
-            this.progressValue = this.getTimer.passed
-                ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100))
-                : 100;
-        },
-
-        // Добавить уведомление в favicon и title
-        notify() {
+        // Управление звуком
+        playSound() {
             // Признак включенного звука
             this.isPlaySong ^= true;
 

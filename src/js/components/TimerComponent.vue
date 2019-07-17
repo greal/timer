@@ -33,10 +33,12 @@ const timerSound = new TimerSound('../audio/');
 
 export default {
     name: `TimerComponent`,
+
     components: {
         TimerItem,
         Modal
     },
+
     created() {
         // Запуск общего таймера
         timerInstance.start();
@@ -63,6 +65,11 @@ export default {
                 : timerSound.stop(payload.songId);
         });
 
+        // Отключить звук
+        this.$root.$on(`stopSong`, () => {
+            timerSound.stopAll();
+        });
+
         // Вкл./Выкл. таймер
         this.$root.$on(`toggleTimer`, (id) => {
             this.toggleTimer(id);
@@ -71,11 +78,9 @@ export default {
 
         // Удалить таймер
         this.$root.$on(`removeTimer`, (id) => {
-            if (this.issetStartedTimer(id)) {
-                this.removeStartedTimer(id);
-            }
+            this.removeStartedTimer(id);
             this.stopSoundTimer(id);
-            this.removeTimer(id);            
+            this.removeTimer(id);
         });
 
         // Сброс таймера
@@ -85,24 +90,28 @@ export default {
             this.stopSoundTimer(id);
         });
 
+        // Остановка таймера
+        this.$root.$on(`stopTimer`, (id) => {
+            this.timerState(id, false);
+        });
+
         // Если страница была перезагружена
-        let that = this;
         this.timers
             .filter((timer) => timer.isActive === true)
             .forEach((timer) => {
-                that.timerState(timer.id, true);
-
-                console.log(`Reloaded: `, timer);
+                this.timerState(timer.id, true);
             });
     },
+
     computed: mapState({
         timers: (state) => state.timer.timers
     }),
+
     data: () => ({
-        // Показать модальное окно
         isShowModal: false,
         modalTimerId: null
     }),
+    
     methods: {
         ...mapActions({
             changeActivity: `timer/changeActivity`,
@@ -125,11 +134,8 @@ export default {
 
         // Процесс выполнения таймера
         timerProcess(id) {
-            // Поиск таймера
-            let timer = this.getTimer(id);
-
             // Обновить пройденное время таймера
-            this.updatePassed(timer);
+            this.updatePassed(this.getTimer(id));
         },
 
         // Получить данные таймера
@@ -139,12 +145,11 @@ export default {
 
         // Добавить таймер
         startTimer(id) {
-            let that = this;
             timeCheck.cfg.checks.push({
                 id: id,
                 check: () => true,
                 action: () => {
-                    that.timerProcess(id);
+                    this.timerProcess(id);
                 }
             });
 
@@ -154,29 +159,30 @@ export default {
 
         // Удаление таймера
         removeStartedTimer(id) {
-            timeCheck.cfg.checks.splice(
-                timeCheck.cfg.checks.findIndex((item) => item.id === id),
-                1
-            );
+            if (this.issetStartedTimer(id)) {
+                timeCheck.cfg.checks.splice(
+                    timeCheck.cfg.checks.findIndex((item) => item.id === id),
+                    1
+                );
 
-            // обновление
-            timeCheck.update();
+                // обновление
+                timeCheck.update();
+            }
         },
 
+        // Тумблер
         toggleTimer(id) {
-            let isIssetTimer = this.issetStartedTimer(id);
-
-            this.timerState(id, !isIssetTimer);
+            this.timerState(id, !this.issetStartedTimer(id));
         },
 
         // Смена состояния таймера
         timerState(id, state) {
-            // Установка активности
-            this.changeActivity({id, isActive: state});
-
             state
                 ? this.startTimer(id) // Включить таймер
                 : this.removeStartedTimer(id); // Отключить таймер
+
+            // Установка активности
+            this.changeActivity({id, isActive: state});
         },
 
         // Открыть окно

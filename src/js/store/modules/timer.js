@@ -80,6 +80,11 @@ state = Object.assign(state, {timers});
 // getters
 const getters = {
 
+    // Получить настройки по умолчанию
+    getDefaultParams: (state) => {
+        return state.defaultParams;
+    },
+
     // Поиск таймера
     findTimer: (state) => (id) => {
         return state.timers.find((item) => item.id === id);
@@ -93,7 +98,7 @@ const actions = {
     // Обновить пройденное время таймера
     updatePassed({commit, state}, timer) {
         let newTimers = state.timers.map((item) => {
-            if (item.id === timer.id && timer.passed <= item.begin) {
+            if (item.id === timer.id && timer.passed < item.begin) {
                 item.passed = timer.passed + 1;
             }
 

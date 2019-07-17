@@ -2,8 +2,11 @@
 
 import Vue from 'vue';
 import store from './store';
+import {formatSecond2Human} from './filters/formatSecond2Human';
 import Timer from './components/TimerComponent';
 import Favico from 'favico.js';
+
+Vue.filter('formatSecond2Human', formatSecond2Human);
 
 // Set the name of the hidden property and the change event for visibility
 let hidden;
@@ -30,7 +33,6 @@ const app = new Vue({
     created() {
         // Уведомление
         this.$root.$on(`addNotify`, () => {
-            console.log(`addNotify`);
             faviconBadge++;
             this.handlerNotify();
         });

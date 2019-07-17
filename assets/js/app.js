@@ -71,6 +71,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   props: {
     timerId: Number
   },
+  created: function created() {
+    if (!this.timerId) {
+      var defaultParams = this.$store.getters["timer/getDefaultParams"];
+      this.hour = 0;
+      this.minute = 10;
+      this.second = 0;
+      this.song = this.songs[0];
+      this.name = defaultParams.name;
+    }
+  },
   watch: {
     getTimer: function getTimer(value) {
       if (value) {
@@ -88,8 +98,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         this.name = "";
       }
     },
-    songId: function songId() {
-      this.$root.$emit("pauseSong");
+    song: function song() {
+      this.$root.$emit("stopSong");
+      this.isPlaySong = false;
     }
   },
   computed: _objectSpread({
@@ -107,7 +118,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       song: null,
       hour: 0,
       minute: 0,
-      second: 0
+      second: 0,
+      isPlaySong: false
     };
   },
   methods: {
@@ -120,10 +132,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     closeModal: function closeModal() {
       this.$root.$emit("closeModal");
     },
-    listenSong: function listenSong(e) {
-      this.$root.$emit("listenSong", {
-        isPlay: e.target.checked,
-        song: this.song
+    // Управление звуком
+    playSound: function playSound() {
+      // Признак включенного звука
+      this.isPlaySong ^= true; // Включить звук уведомления
+
+      this.$root.$emit("playSong", {
+        songId: this.song.id,
+        isPlay: this.isPlaySong
       });
     }
   }
@@ -204,6 +220,10 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
 
     this.$root.$on("playSong", function (payload) {
       payload.isPlay ? timerSound.play(payload.songId) : timerSound.stop(payload.songId);
+    }); // Отключить звук
+
+    this.$root.$on("stopSong", function () {
+      timerSound.stopAll();
     }); // Вкл./Выкл. таймер
 
     this.$root.$on("toggleTimer", function (id) {
@@ -213,9 +233,7 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
     }); // Удалить таймер
 
     this.$root.$on("removeTimer", function (id) {
-      if (_this.issetStartedTimer(id)) {
-        _this.removeStartedTimer(id);
-      }
+      _this.removeStartedTimer(id);
 
       _this.stopSoundTimer(id);
 
@@ -228,14 +246,16 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
       _this.resetPassed(id);
 
       _this.stopSoundTimer(id);
+    }); // Остановка таймера
+
+    this.$root.$on("stopTimer", function (id) {
+      _this.timerState(id, false);
     }); // Если страница была перезагружена
 
-    var that = this;
     this.timers.filter(function (timer) {
       return timer.isActive === true;
     }).forEach(function (timer) {
-      that.timerState(timer.id, true);
-      console.log("Reloaded: ", timer);
+      _this.timerState(timer.id, true);
     });
   },
   computed: Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])({
@@ -245,7 +265,6 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
   }),
   data: function data() {
     return {
-      // Показать модальное окно
       isShowModal: false,
       modalTimerId: null
     };
@@ -270,10 +289,8 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
     },
     // Процесс выполнения таймера
     timerProcess: function timerProcess(id) {
-      // Поиск таймера
-      var timer = this.getTimer(id); // Обновить пройденное время таймера
-
-      this.updatePassed(timer);
+      // Обновить пройденное время таймера
+      this.updatePassed(this.getTimer(id));
     },
     // Получить данные таймера
     getTimer: function getTimer(id) {
@@ -281,14 +298,15 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
     },
     // Добавить таймер
     startTimer: function startTimer(id) {
-      var that = this;
+      var _this2 = this;
+
       timeCheck.cfg.checks.push({
         id: id,
         check: function check() {
           return true;
         },
         action: function action() {
-          that.timerProcess(id);
+          _this2.timerProcess(id);
         }
       }); // обновление
 
@@ -296,25 +314,28 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
     },
     // Удаление таймера
     removeStartedTimer: function removeStartedTimer(id) {
-      timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) {
-        return item.id === id;
-      }), 1); // обновление
+      if (this.issetStartedTimer(id)) {
+        timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) {
+          return item.id === id;
+        }), 1); // обновление
 
-      timeCheck.update();
+        timeCheck.update();
+      }
     },
+    // Тумблер
     toggleTimer: function toggleTimer(id) {
-      var isIssetTimer = this.issetStartedTimer(id);
-      this.timerState(id, !isIssetTimer);
+      this.timerState(id, !this.issetStartedTimer(id));
     },
     // Смена состояния таймера
     timerState: function timerState(id, state) {
+      state ? this.startTimer(id) // Включить таймер
+      : this.removeStartedTimer(id); // Отключить таймер
       // Установка активности
+
       this.changeActivity({
         id: id,
         isActive: state
       });
-      state ? this.startTimer(id) // Включить таймер
-      : this.removeStartedTimer(id); // Отключить таймер
     },
     // Открыть окно
     openModal: function openModal() {
@@ -341,8 +362,6 @@ var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../a
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../store */ "./src/js/store/index.js");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../functions */ "./src/js/functions.js");
 //
 //
 //
@@ -376,12 +395,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-// import { mapState, mapActions } from 'vuex'
-
-
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: "TimerItemComponent",
-  store: _store__WEBPACK_IMPORTED_MODULE_0__["default"],
   props: {
     timerId: Number
   },
@@ -402,36 +417,33 @@ __webpack_require__.r(__webpack_exports__);
       return this.getTimer.song;
     },
     getCounter: function getCounter() {
-      return Object(_functions__WEBPACK_IMPORTED_MODULE_1__["timeSecond2Human"])(this.getTimer.begin);
+      return this.getTimer.begin;
     },
-    getCounterDyn: function getCounterDyn() {
-      return Object(_functions__WEBPACK_IMPORTED_MODULE_1__["timeSecond2Human"])(this.timeLeft);
-    },
+    // Остаток времени
     timeLeft: function timeLeft() {
       var timeLeft = this.getTimer.begin - this.getTimer.passed;
       return timeLeft > 0 ? timeLeft : 0;
+    },
+    // Подсчет процента выполнения
+    progressValue: function progressValue() {
+      return this.getTimer.passed ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100)) : 100;
     }
   },
   data: function data() {
     return {
-      progressValue: 100,
       isPlaySong: false
     };
   },
   watch: {
-    getTimer: function getTimer(timer) {
-      this.calcProgressValue();
+    timeLeft: function timeLeft(value) {
+      if (!value) {
+        // Включить звук уведомление
+        this.playSound(); // Favicon и title
 
-      if (!this.timeLeft) {
-        // Включить уведомление
-        this.notify(); // Остановить таймер
-        // timerState(timer.id, false);
+        this.$root.$emit("addNotify"); // Остановить таймер
+
+        this.stop();
       }
-
-      console.log("getTimer: ", timer);
-    },
-    getActive: function getActive(value) {
-      console.log("getActive: ", value);
     }
   },
   methods: {
@@ -446,15 +458,14 @@ __webpack_require__.r(__webpack_exports__);
     toggle: function toggle() {
       this.$root.$emit("toggleTimer", this.timerId);
     },
+    stop: function stop() {
+      this.$root.$emit("stopTimer", this.timerId);
+    },
     reset: function reset() {
       this.$root.$emit("resetTimer", this.timerId);
     },
-    // Подсчет процента выполнения
-    calcProgressValue: function calcProgressValue() {
-      this.progressValue = this.getTimer.passed ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100)) : 100;
-    },
-    // Добавить уведомление в favicon и title
-    notify: function notify() {
+    // Управление звуком
+    playSound: function playSound() {
       // Признак включенного звука
       this.isPlaySong ^= true; // Включить звук уведомления
 
@@ -793,11 +804,15 @@ var render = function() {
                 _c("input", {
                   attrs: {
                     type: "checkbox",
-                    value: "1",
                     id: "BtnAudio",
                     name: "listenAudio"
                   },
-                  on: { change: _vm.listenSong }
+                  domProps: { checked: _vm.isPlaySong },
+                  on: {
+                    change: function($event) {
+                      return _vm.playSound()
+                    }
+                  }
                 }),
                 _vm._v(" "),
                 _c("label", { attrs: { for: "BtnAudio" } }, [
@@ -942,14 +957,9 @@ var render = function() {
     { class: ["Timer__item", { "Timer__item--overdue": !_vm.timeLeft }] },
     [
       _c("div", { staticClass: "Timer__row" }, [
-        _c(
-          "div",
-          {
-            staticClass: "Timer__counter",
-            domProps: { textContent: _vm._s(_vm.getCounterDyn) }
-          },
-          [_vm._v("--:--:--")]
-        ),
+        _c("div", { staticClass: "Timer__counter" }, [
+          _vm._v(_vm._s(_vm._f("formatSecond2Human")(_vm.timeLeft)))
+        ]),
         _vm._v(" "),
         _c("div", { staticClass: "Timer__controls" }, [
           _c("button", {
@@ -983,14 +993,9 @@ var render = function() {
           domProps: { textContent: _vm._s(_vm.getName) }
         }),
         _vm._v(" "),
-        _c(
-          "span",
-          {
-            staticClass: "Timer__value",
-            domProps: { textContent: _vm._s(_vm.getCounter) }
-          },
-          [_vm._v("--:--:--")]
-        ),
+        _c("span", { staticClass: "Timer__value" }, [
+          _vm._v(_vm._s(_vm._f("formatSecond2Human")(_vm.getCounter)))
+        ]),
         _vm._v(" "),
         _c("span", { staticClass: "BtnAudio" }, [
           _c("input", {
@@ -1000,7 +1005,11 @@ var render = function() {
               name: "audioCheck_" + _vm.getSong.id
             },
             domProps: { checked: _vm.isPlaySong },
-            on: { change: _vm.notify }
+            on: {
+              change: function($event) {
+                return _vm.playSound()
+              }
+            }
           }),
           _vm._v(" "),
           _c("label", { attrs: { for: "AudioCheck-" + _vm.getSong.id } }, [
@@ -1399,14 +1408,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./store */ "./src/js/store/index.js");
-/* harmony import */ var _components_TimerComponent__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./components/TimerComponent */ "./src/js/components/TimerComponent.vue");
-/* harmony import */ var favico_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! favico.js */ "./node_modules/favico.js/favico.js");
-/* harmony import */ var favico_js__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(favico_js__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./filters/formatSecond2Human */ "./src/js/filters/formatSecond2Human.js");
+/* harmony import */ var _components_TimerComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/TimerComponent */ "./src/js/components/TimerComponent.vue");
+/* harmony import */ var favico_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! favico.js */ "./node_modules/favico.js/favico.js");
+/* harmony import */ var favico_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(favico_js__WEBPACK_IMPORTED_MODULE_4__);
 /* eslint no-console: ["error", {allow: ["log"]}]*/
 
 
 
- // Set the name of the hidden property and the change event for visibility
+
+
+vue__WEBPACK_IMPORTED_MODULE_0___default.a.filter('formatSecond2Human', _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__["formatSecond2Human"]); // Set the name of the hidden property and the change event for visibility
 
 var hidden;
 var visibilityChange;
@@ -1425,7 +1437,7 @@ if (typeof document.hidden !== "undefined") {
 
 
 var faviconBadge = 0;
-var favicon = new favico_js__WEBPACK_IMPORTED_MODULE_3___default.a({
+var favicon = new favico_js__WEBPACK_IMPORTED_MODULE_4___default.a({
   animation: "fade"
 });
 var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
@@ -1435,7 +1447,6 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
 
     // Уведомление
     this.$root.$on("addNotify", function () {
-      console.log("addNotify");
       faviconBadge++;
 
       _this.handlerNotify();
@@ -1469,7 +1480,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
     };
   },
   render: function render(h) {
-    return h(_components_TimerComponent__WEBPACK_IMPORTED_MODULE_2__["default"]);
+    return h(_components_TimerComponent__WEBPACK_IMPORTED_MODULE_3__["default"]);
   }
 });
 app.$mount("#app");
@@ -1683,11 +1694,42 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./src/js/filters/formatSecond2Human.js":
+/*!**********************************************!*\
+  !*** ./src/js/filters/formatSecond2Human.js ***!
+  \**********************************************/
+/*! exports provided: formatSecond2Human */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatSecond2Human", function() { return formatSecond2Human; });
+var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
+
+__webpack_require__(/*! moment-duration-format */ "./node_modules/moment-duration-format/lib/moment-duration-format.js");
+/**
+ * Преобразовать секунды в 00:00:00
+ *
+ * @export
+ * @param {Number} seconds
+ * @return {String}
+ */
+
+
+function formatSecond2Human(seconds) {
+  var duration = moment.duration(seconds, "seconds");
+  return duration.format("hh:mm:ss", {
+    trim: false
+  });
+}
+
+/***/ }),
+
 /***/ "./src/js/functions.js":
 /*!*****************************!*\
   !*** ./src/js/functions.js ***!
   \*****************************/
-/*! exports provided: IDGenerator, AdjustingInterval, timeStr2Array, timeSecond2Human, time2Second, TimerSound, default */
+/*! exports provided: IDGenerator, AdjustingInterval, timeStr2Array, time2Second, TimerSound, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1695,7 +1737,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IDGenerator", function() { return IDGenerator; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AdjustingInterval", function() { return AdjustingInterval; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeStr2Array", function() { return timeStr2Array; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeSecond2Human", function() { return timeSecond2Human; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "time2Second", function() { return time2Second; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TimerSound", function() { return TimerSound; });
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -1834,20 +1875,6 @@ function timeStr2Array(time) {
   }).split(":").map(Number);
 }
 /**
- * Преобразовать секунды в 00:00:00
- *
- * @export
- * @param {Number} seconds
- * @return {String}
- */
-
-function timeSecond2Human(seconds) {
-  var duration = moment.duration(seconds, "seconds");
-  return duration.format("hh:mm:ss", {
-    trim: false
-  });
-}
-/**
  * Преобразовать время в секунды
  *
  * @export
@@ -1963,7 +1990,10 @@ function () {
       sounds.forEach(function (sound) {
         _this4._stopSong(sound);
       });
-      fn();
+
+      if (fn) {
+        fn();
+      }
     }
   }]);
 
@@ -1973,7 +2003,6 @@ function () {
   IDGenerator: IDGenerator,
   AdjustingInterval: AdjustingInterval,
   timeStr2Array: timeStr2Array,
-  timeSecond2Human: timeSecond2Human,
   time2Second: time2Second,
   TimerSound: TimerSound
 });
@@ -2088,6 +2117,10 @@ state = Object.assign(state, {
 }); // getters
 
 var getters = {
+  // Получить настройки по умолчанию
+  getDefaultParams: function getDefaultParams(state) {
+    return state.defaultParams;
+  },
   // Поиск таймера
   findTimer: function findTimer(state) {
     return function (id) {
@@ -2104,7 +2137,7 @@ var actions = {
     var commit = _ref.commit,
         state = _ref.state;
     var newTimers = state.timers.map(function (item) {
-      if (item.id === timer.id && timer.passed <= item.begin) {
+      if (item.id === timer.id && timer.passed < item.begin) {
         item.passed = timer.passed + 1;
       }
 

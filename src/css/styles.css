@@ -1,22 +1,23 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,700&display=swap&subset=cyrillic');
-
 @import "~normalize.css/normalize.css";
 
 body {
-	font: 400 16px/1.188 'Roboto', sans-serif;
-	color: #130D08;
+    color: #130d08;
+    font: 400 16px/1.188 'Roboto', sans-serif;
 }
 
 a:focus,
 input:focus,
 select:focus,
 button:focus {
-	outline: none;
-	box-shadow: 0 0 0 3px rgba(0, 123, 255, .5);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, .5);
 }
 
-*, *::after, *::before {
-	box-sizing: border-box;
+*,
+*:after,
+*:before {
+    box-sizing: border-box;
 }
 
 /**
@@ -24,295 +25,293 @@ button:focus {
   */
 @import "modules/_buttons.css";
 
-
 /**
  Icons
  */
 @import "modules/_icons.css";
 
 .Wrapper {
-	width: 900px;
-	margin: 25px auto;
+    width: 900px;
+    margin: 25px auto;
 }
 
 .Timer__item {
-	padding: 10px;
-	transition: background-color .3s;
+    padding: 10px;
+    transition: background-color .3s;
 
-	& + & {
-		margin-top: 25px;
-	}
+    & + & {
+        margin-top: 25px;
+    }
 
-	&--overdue {
-		background-color: rgba(236, 142, 139, .2);
-	}
+    &--overdue {
+        background-color: rgba(236, 142, 139, .2);
+    }
 }
 
 .Timer__footer {
-	margin-top: 25px;
-	padding: 0 10px 10px 10px;
+    margin-top: 25px;
+    padding: 0 10px 10px 10px;
 }
 
 .Timer__row {
-	display: flex;
-	align-items: center;
+    display: flex;
+    align-items: center;
 
-	& + & {
-		margin-top: 10px;
-	}
+    & + & {
+        margin-top: 10px;
+    }
 }
 
 .Timer__counter {
-	font-size: 48px;
-	line-height: 1;
+    font-size: 48px;
+    line-height: 1;
 }
 
 .Timer__controls {
-	margin-left: 15px;
+    margin-left: 15px;
 }
 
 .Timer__name {
-	max-width: 300px;
+    max-width: 300px;
 }
 
 .Timer__value {
-	color: #aaa;
+    color: #aaa;
 }
 
 .Timer__row--info .Timer__value {
-	margin-left: 15px;
+    margin-left: 15px;
 }
 
 .Timer__row--info .Btn--edit,
 .Timer__row--info .Btn--remove {
-	padding: 0;
-	margin-left: 15px;
+    margin-left: 15px;
+    padding: 0;
 }
 
 .Timer__row--info .BtnAudio {
-	margin-left: 15px;
+    margin-left: 15px;
 }
 
 .Timer__row--info .BtnAudio label {
-	display: inline-block;
-	max-width: 180px;
+    display: inline-block;
+    max-width: 180px;
 }
 
 .Timer__empty {
-	text-align: center;
-	font-size: 21px;
+    font-size: 21px;
+    text-align: center;
 }
 
 .Timer__progress {
-	position: relative;
-	width: 100%;
-	overflow: hidden;
-	border-radius: 3px;
-	background-color: #ddd;
-	box-shadow: inset 0 0 10px 0 rgba(0,0,0,.15);
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background-color: #ddd;
+    border-radius: 3px;
+    box-shadow: inset 0 0 10px 0 rgba(0, 0, 0, .15);
 
-	&:after {
-		content: "";
-		position: absolute;
-		top: 0;
-		left: 0;
-		bottom: 0;
-		right: 0;
-		background-image: -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, rgba(255, 255, 255, .2)), color-stop(.25, transparent), color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .2)), color-stop(.75, rgba(255, 255, 255, .2)), color-stop(.75, transparent), to(transparent) );
-		background-image: -moz-linear-gradient( -45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent );
-		z-index: 1;
-		-webkit-background-size: 25px 25px;
-		-moz-background-size: 25px 25px;
-		background-size: 25px 25px;
-		-webkit-animation: timerViewProgressMove 8s linear infinite;
-		-moz-animation: timerViewProgressMove 8s linear infinite;
-		-webkit-border-top-right-radius: 8px;
-		-webkit-border-bottom-right-radius: 8px;
-		-moz-border-radius-topright: 8px;
-		-moz-border-radius-bottomright: 8px;
-		border-top-right-radius: 8px;
-		border-bottom-right-radius: 8px;
-		-webkit-border-top-left-radius: 20px;
-		-webkit-border-bottom-left-radius: 20px;
-		-moz-border-radius-topleft: 20px;
-		-moz-border-radius-bottomleft: 20px;
-		border-top-left-radius: 20px;
-		border-bottom-left-radius: 20px;
-		overflow: hidden;
-	}
+    &:after {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        overflow: hidden;
+        background-image: -webkit-gradient(linear, 0 0, 100% 100%, color-stop(.25, rgba(255, 255, 255, .2)), color-stop(.25, transparent), color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .2)), color-stop(.75, rgba(255, 255, 255, .2)), color-stop(.75, transparent), to(transparent));
+        background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent);
+        -webkit-background-size: 25px 25px;
+        -moz-background-size: 25px 25px;
+        background-size: 25px 25px;
+        -webkit-border-top-left-radius: 20px;
+        border-top-left-radius: 20px;
+        -webkit-border-top-right-radius: 8px;
+        border-top-right-radius: 8px;
+        -webkit-border-bottom-right-radius: 8px;
+        border-bottom-right-radius: 8px;
+        -moz-border-radius-topright: 8px;
+        -moz-border-radius-bottomright: 8px;
+        -webkit-border-bottom-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        -moz-border-radius-topleft: 20px;
+        -moz-border-radius-bottomleft: 20px;
+        -webkit-animation: timerViewProgressMove 8s linear infinite;
+        -moz-animation: timerViewProgressMove 8s linear infinite;
+        content: "";
+    }
 }
 
 @keyframes timerViewProgressMove {
-	0% {
-		background-position: 100% 50%;
-	}
-	99.999% {
-		background-position: 50% 0;
-	}
-	100% {
-		background-position: 50% 0;
-	}
+    0% {
+        background-position: 100% 50%;
+    }
+
+    99.999% {
+        background-position: 50% 0;
+    }
+
+    100% {
+        background-position: 50% 0;
+    }
 }
 
 .Timer__progress div {
-	padding: 10px 0;
-	font-size: 14px;
-	font-weight: 300;
-	color: #fff;
-	line-height: 1;
-	text-align: center;
-	background-color: darkcyan;
-	transition: width .3s;
-	user-select: none;
-	box-shadow: inset 0 0 10px 0 rgba(0,0,0,.15);
+    padding: 10px 0;
+    color: #fff;
+    font-weight: 300;
+    font-size: 14px;
+    line-height: 1;
+    text-align: center;
+    background-color: #008b8b;
+    box-shadow: inset 0 0 10px 0 rgba(0, 0, 0, .15);
+    transition: width .3s;
+    user-select: none;
 }
 
 .Timer__progress--alert div {
-	background-color: #EE5757;
+    background-color: #ee5757;
 }
 
 .Timer__progress--textHide div {
-	color: rgba(0,0,0,0);
+    color: rgba(0, 0, 0, 0);
 }
-
 
 /**
  Modal
  */
 .Modal {
-	position: fixed;
-	z-index: 1;
-	display: table;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, .3);
-	transition: opacity .3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    display: table;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .3);
+    transition: opacity .3s ease;
 
-	&__wrapper {
-		display: table-cell;
-		vertical-align: middle;
-	}
+    &__wrapper {
+        display: table-cell;
+        vertical-align: middle;
+    }
 
-	&__container {
-		background-color: #fff;
-		width: 500px;
-		position: relative;
-		margin: 0 auto;
-		border-radius: 5px;
-		box-shadow: 0 0 25px rgba(43, 31, 9, .23);
-		overflow: hidden;
-		transition: all .3s ease;
-	}
+    &__container {
+        position: relative;
+        width: 500px;
+        margin: 0 auto;
+        overflow: hidden;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 0 25px rgba(43, 31, 9, .23);
+        transition: all .3s ease;
+    }
 
-	&__header {
-		color: #130d07;
-		font-weight: 700;
-		font-size: 21px;
-		line-height: 1;
-		background-color: powderblue;
-		padding: 10px 20px;
-	}
+    &__header {
+        padding: 10px 20px;
+        color: #130d07;
+        font-weight: 700;
+        font-size: 21px;
+        line-height: 1;
+        background-color: #b0e0e6;
+    }
 
-	&__content {
-		padding: 0 20px;
-	}
+    &__content {
+        padding: 0 20px;
+    }
 
-	&__controls {
-		padding: 15px 20px;
-		background-color: aliceblue;
+    &__controls {
+        padding: 15px 20px;
+        background-color: #f0f8ff;
 
-		.Btn + .Btn {
-			margin-left: 10px;
-		}
-	}
+        .Btn + .Btn {
+            margin-left: 10px;
+        }
+    }
 
-	&__box {
-		padding: 15px 0;
+    &__box {
+        padding: 15px 0;
 
-		& + & {
-			border-top: 1px #e1e1e1 solid;
-		}
-	}
+        & + & {
+            border-top: 1px #e1e1e1 solid;
+        }
+    }
 
-	&__close {
-		position: absolute;
-		right: 15px;
-		top: 12px;
-		font: 21px/1 "Arial", sans-serif;
-		text-decoration: none;
-		color: inherit;
-		transition: all .3s;
+    &__close {
+        position: absolute;
+        top: 12px;
+        right: 15px;
+        color: inherit;
+        font: 21px/1 "Arial", sans-serif;
+        text-decoration: none;
+        transition: all .3s;
 
-		&:before {
-			content: '\2716';
-		}
+        &:before {
+            content: '\2716';
+        }
 
-		&:hover {
-			opacity: .75;
-			color: crimson;
-		}
-	}
+        &:hover {
+            color: #dc143c;
+            opacity: .75;
+        }
+    }
 
+    /* Animation */
+    &-enter {
+        opacity: 0;
+    }
 
-	/* Animation */
-	&-enter {
-		opacity: 0;
-	}
+    &-leave-active {
+        opacity: 0;
+    }
 
-	&-leave-active {
-		opacity: 0;
-	}
-
-	&-enter &__container,
-	&-leave-active &__container {
-		transform: scale(1.1);
-	}
+    &-enter &__container,
+    &-leave-active &__container {
+        transform: scale(1.1);
+    }
 }
-
 
 /**
  * AddTimer
  */
 .AddTimer {
-	display: inline-flex;
+    display: inline-flex;
 
-	&__label {
-		display: block;
-		margin-bottom: 5px;
-		font-size: 13px;
-		color: #6f6f6f;
-	}
+    &__label {
+        display: block;
+        margin-bottom: 5px;
+        color: #6f6f6f;
+        font-size: 13px;
+    }
 
-	&__col + &__col {
-		margin-left: 30px;
-	}
+    &__col + &__col {
+        margin-left: 30px;
+    }
 
-	&__input {
-		padding: 5px 10px;
-		font-size: 18px;
-		border: 1px #6f6f6f solid;
-		border-radius: 3px;
+    &__input {
+        padding: 5px 10px;
+        font-size: 18px;
+        border: 1px #6f6f6f solid;
+        border-radius: 3px;
 
-		&--time {
-			width: 70px;
-		}
+        &--time {
+            width: 70px;
+        }
 
-		&--name {
-			width: 200px;
-			text-overflow: ellipsis;
-		}
-	}
+        &--name {
+            width: 200px;
+            text-overflow: ellipsis;
+        }
+    }
 
-	&__select {
-		padding: 5px 10px;
-		font-size: 18px;
-		border-radius: 3px;
-		border: 1px #6f6f6f solid;
+    &__select {
+        padding: 5px 10px;
+        font-size: 18px;
+        border: 1px #6f6f6f solid;
+        border-radius: 3px;
 
-		&  ~ .BtnAudio {
-			margin-left: 10px;
-		}
-	}
+        & ~ .BtnAudio {
+            margin-left: 10px;
+        }
+    }
 }

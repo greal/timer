@@ -1,0 +1,6 @@
+{
+    "workbench.tree.indent": 14,
+    "files.associations": {
+        "*.css": "postcss"
+    }
+}

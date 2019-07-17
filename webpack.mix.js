@@ -1,5 +1,6 @@
 const mix = require('laravel-mix');
 const webpack = require('webpack');
+const StyleLintPlugin = require('stylelint-webpack-plugin');
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 mix.webpackConfig({
@@ -14,6 +15,9 @@ mix.webpackConfig({
         ]
     },
     plugins: [
+        new StyleLintPlugin({
+            files: ['src/**/*.{vue,css}'],
+        }),
         // new BundleAnalyzerPlugin(),
         // Ignore all locale files of moment.js
         new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
