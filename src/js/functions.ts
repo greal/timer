@@ -1,24 +1,44 @@
+import {Callback} from './types/custom'
+
 const moment = require(`moment`);
 require(`moment-duration-format`);
 
-
 /**
- * Генератор Id
+ * Генератор ID
  *
  * @export
  * @class IDGenerator
  */
 export class IDGenerator {
+
+    length: number;
+    timestamp: number;
+
     constructor() {
         this.length = 8;
         this.timestamp = +new Date();
     }
 
-    _getRandomInt(min, max) {
+    /**
+     * Получает случайное число из нужного диапазона
+     *
+     * @private
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     * @memberof IDGenerator
+     */
+    private _getRandomInt(min: number, max: number): number {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
-    generate() {
+    /**
+     * Создание случайного ID
+     *
+     * @returns {number}
+     * @memberof IDGenerator
+     */
+    generate(): number {
         let ts = this.timestamp.toString();
         let parts = ts.split(``).reverse();
         let id = ``;
@@ -31,7 +51,6 @@ export class IDGenerator {
     }
 }
 
-
 /**
  * Саморегулирующийся интервал для учета дрейфа
  *
@@ -40,33 +59,44 @@ export class IDGenerator {
  */
 export class AdjustingInterval {
 
+    private _running: boolean;
+    private _expected: number;
+    private _timeout: number;
+    public interval: number;
+    public callback: Callback;
+    public errorCallback?: Callback | null = null;
+
     /**
      * Creates an instance of AdjustingInterval.
+     * 
      * @param {AdjustingInterval~callback} callback
      * @param {*} interval
      * @param {AdjustingInterval~errorCallback} [errorCallback=null]
      * @memberof AdjustingInterval
      */
-    constructor(callback, interval, errorCallback = null) {
-        this.running = false;
+    constructor(callback: Callback, interval: number, errorCallback?: Callback) {
+        this._running = false;
         this.interval = interval;
         this.callback = callback;
         this.errorCallback = errorCallback;
+
+        this._expected = 0;
+        this._timeout = 0;
     }
 
-    start() {
-        this.running = true;
-        this.expected = Date.now() + this.interval;
-        this.timeout = setTimeout(() => this._step(), this.interval);
+    start(): void {
+        this._running = true;
+        this._expected = Date.now() + this.interval;
+        this._timeout = window.setTimeout(() => this._step(), this.interval);
     }
 
-    stop() {
-        this.running = false;
-        clearTimeout(this.timeout);
+    stop(): void {
+        this._running = false;
+        window.clearTimeout(this._timeout);
     }
 
-    _step() {
-        let drift = Date.now() - this.expected;
+    private _step(): void {
+        let drift = Date.now() - this._expected;
         if (drift > this.interval) {
             if (this.errorCallback) {
                 this.errorCallback();
@@ -75,22 +105,21 @@ export class AdjustingInterval {
 
         this.callback();
 
-        if (this.running) {
-            this.expected += this.interval;
-            this.timeout = setTimeout(() => this._step(), Math.max(0, this.interval - drift));
+        if (this._running) {
+            this._expected += this.interval;
+            this._timeout = window.setTimeout(() => this._step(), Math.max(0, this.interval - drift));
         }
     }
 }
-
 
 /**
  * Преобразовать секунды в массив [час, минута, секунда]
  *
  * @export
- * @param {Number} time
- * @return {Array}
+ * @param {number} time
+ * @returns {number[]}
  */
-export function timeStr2Array(time) {
+export function timeStr2Array(time: number): number[] {
     return moment
         .duration(time, `seconds`)
         .format(`hh:mm:ss`, {trim: false})
@@ -98,26 +127,24 @@ export function timeStr2Array(time) {
         .map(Number);
 }
 
-
 /**
  * Преобразовать время в секунды
  *
  * @export
- * @param {Number} hour
- * @param {Number} minute
- * @param {Number} second
- * @return {Number}
+ * @param {number} hour
+ * @param {number} minute
+ * @param {number} second
+ * @returns {number}
  */
-export function time2Second(hour, minute, second) {
+export function time2Second(hour: number, minute: number, second: number): number {
     let begin = moment.duration({ 
-        hours: hour, 
-        minutes: minute, 
-        seconds: second 
+        hours: hour,
+        minutes: minute,
+        seconds: second
     }).asSeconds();
 
     return begin;
 }
-
 
 /**
  * Управление аудио
@@ -127,12 +154,15 @@ export function time2Second(hour, minute, second) {
  */
 export class TimerSound {
 
+    private path: string;
+
     /**
      * Creates an instance of TimerSound.
-     * @param {String} [path='']
+
+     * @param {string} [path=``]
      * @memberof TimerSound
      */
-    constructor(path = '') {
+    constructor(path: string = ``) {
         this.path = path;
     }
 
@@ -142,49 +172,46 @@ export class TimerSound {
      * @param {Number|String} id
      * @memberof TimerSound
      */
-    play(id) {
+    play(id: number): void {
         this.stopAll(() => {
-            let el = document.getElementById(`sound-${id}`);
+            let el = document.getElementById(`sound-${id}`) as HTMLMediaElement;
             if (el) {
                 el.play();
             } else {
-                let a = document.createElement(`audio`);
+                let a = document.createElement(`audio`) as HTMLMediaElement;
                 a.src = `${this.path}${id}.mp3`;
                 a.volume = 0.75;
-                a.setAttribute(`autoplay`, true);
-                a.setAttribute(`loop`, true);
+                a.setAttribute(`autoplay`, `true`);
+                a.setAttribute(`loop`, `true`);
                 a.setAttribute(`id`, `sound-${id}`);
                 document.body.appendChild(a);
             }
         });
     }
 
-    
     /**
      * Остановка аудио
      *
      * @param {Number|String} id
      * @memberof TimerSound
      */
-    stop(id) {
-        let sound = document.getElementById(`sound-${id}`);
-        this._stopSong(sound);
+    stop(id: number): void {
+        let el = document.getElementById(`sound-${id}`) as HTMLMediaElement;
+        this._stopSong(el);
     }
-
 
     /**
      * Остановка аудио
      *
-     * @param {HTMLElement|null} el
+     * @param {HTMLMediaElement} el
      * @memberof TimerSound
      */
-    _stopSong(el) {
+    _stopSong(el: HTMLMediaElement) {
         if (el && el.duration > 0 && !el.paused) {
             el.pause();
             el.currentTime = 0;
         }
     }
-
 
     /**
      * Остановка всех аудио
@@ -192,11 +219,9 @@ export class TimerSound {
      * @param {TimerSound~callback} fn
      * @memberof TimerSound
      */
-    stopAll(fn) {
-        let sounds = document.querySelectorAll(`audio[id^=sound-]`);
-        sounds = [].slice.call(sounds); // IE
-        sounds.forEach((sound) => {
-            this._stopSong(sound);
+    stopAll(fn: Callback) {
+        document.querySelectorAll<HTMLMediaElement>(`audio[id^=sound-]`).forEach((el) => {
+            this._stopSong(el);
         });
 
         if (fn) {

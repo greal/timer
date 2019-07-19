@@ -10,7 +10,7 @@
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../functions */ "./src/js/functions.js");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../functions */ "./src/js/functions.ts");
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -143,212 +143,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       });
     }
   }
-});
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerComponent.vue?vue&type=script&lang=js&":
-/*!*******************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/TimerComponent.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../functions */ "./src/js/functions.js");
-/* harmony import */ var _timeChecker__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../timeChecker */ "./src/js/timeChecker.js");
-/* harmony import */ var _ModalComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ModalComponent */ "./src/js/components/ModalComponent.vue");
-/* harmony import */ var _TimerItemComponent__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./TimerItemComponent */ "./src/js/components/TimerItemComponent.vue");
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-
-
-
-var timeCheck = new _timeChecker__WEBPACK_IMPORTED_MODULE_2__["default"]();
-var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_1__["AdjustingInterval"](function () {
-  timeCheck.check();
-}, 1000, function () {
-  console.warn("The drift exceeded the interval.");
-});
-var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_1__["TimerSound"]('../audio/');
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "TimerComponent",
-  components: {
-    TimerItem: _TimerItemComponent__WEBPACK_IMPORTED_MODULE_4__["default"],
-    Modal: _ModalComponent__WEBPACK_IMPORTED_MODULE_3__["default"]
-  },
-  created: function created() {
-    var _this = this;
-
-    // Запуск общего таймера
-    timerInstance.start(); // Сохранить таймер
-
-    this.$root.$on("saveTimer", function (data) {
-      _this.save(data);
-    }); // Открыть окно
-
-    this.$root.$on("openModal", function (timerId) {
-      _this.openModal(timerId);
-    }); // Закрыть окно
-
-    this.$root.$on("closeModal", function () {
-      _this.isShowModal = false;
-    }); // Прослушать звук
-
-    this.$root.$on("playSong", function (payload) {
-      payload.isPlay ? timerSound.play(payload.songId) : timerSound.stop(payload.songId);
-    }); // Отключить звук
-
-    this.$root.$on("stopSong", function () {
-      timerSound.stopAll();
-    }); // Вкл./Выкл. таймер
-
-    this.$root.$on("toggleTimer", function (id) {
-      _this.toggleTimer(id);
-
-      _this.stopSoundTimer(id);
-    }); // Удалить таймер
-
-    this.$root.$on("removeTimer", function (id) {
-      _this.removeStartedTimer(id);
-
-      _this.stopSoundTimer(id);
-
-      _this.removeTimer(id);
-    }); // Сброс таймера
-
-    this.$root.$on("resetTimer", function (id) {
-      _this.timerState(id, false);
-
-      _this.resetPassed(id);
-
-      _this.stopSoundTimer(id);
-    }); // Остановка таймера
-
-    this.$root.$on("stopTimer", function (id) {
-      _this.timerState(id, false);
-    }); // Если страница была перезагружена
-
-    this.timers.filter(function (timer) {
-      return timer.isActive === true;
-    }).forEach(function (timer) {
-      _this.timerState(timer.id, true);
-    });
-  },
-  computed: Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])({
-    timers: function timers(state) {
-      return state.timer.timers;
-    }
-  }),
-  data: function data() {
-    return {
-      isShowModal: false,
-      modalTimerId: null
-    };
-  },
-  methods: _objectSpread({}, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapActions"])({
-    changeActivity: "timer/changeActivity",
-    resetPassed: "timer/resetPassed",
-    updatePassed: "timer/updatePassed",
-    saveTimer: "timer/saveTimer",
-    removeTimer: "timer/removeTimer"
-  }), {
-    // Выключение мелодии
-    stopSoundTimer: function stopSoundTimer(id) {
-      var timer = this.getTimer(id);
-      timerSound.stop(timer.song.id);
-    },
-    // Поиск запущенного таймера
-    issetStartedTimer: function issetStartedTimer(id) {
-      return timeCheck.cfg.checks.findIndex(function (item) {
-        return item.id === id;
-      }) !== -1;
-    },
-    // Процесс выполнения таймера
-    timerProcess: function timerProcess(id) {
-      // Обновить пройденное время таймера
-      this.updatePassed(this.getTimer(id));
-    },
-    // Получить данные таймера
-    getTimer: function getTimer(id) {
-      return this.$store.getters["timer/findTimer"](id);
-    },
-    // Добавить таймер
-    startTimer: function startTimer(id) {
-      var _this2 = this;
-
-      timeCheck.cfg.checks.push({
-        id: id,
-        check: function check() {
-          return true;
-        },
-        action: function action() {
-          _this2.timerProcess(id);
-        }
-      }); // обновление
-
-      timeCheck.update();
-    },
-    // Удаление таймера
-    removeStartedTimer: function removeStartedTimer(id) {
-      if (this.issetStartedTimer(id)) {
-        timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) {
-          return item.id === id;
-        }), 1); // обновление
-
-        timeCheck.update();
-      }
-    },
-    // Тумблер
-    toggleTimer: function toggleTimer(id) {
-      this.timerState(id, !this.issetStartedTimer(id));
-    },
-    // Смена состояния таймера
-    timerState: function timerState(id, state) {
-      state ? this.startTimer(id) // Включить таймер
-      : this.removeStartedTimer(id); // Отключить таймер
-      // Установка активности
-
-      this.changeActivity({
-        id: id,
-        isActive: state
-      });
-    },
-    // Открыть окно
-    openModal: function openModal() {
-      var timerId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-      this.modalTimerId = timerId;
-      this.isShowModal = true;
-    },
-    // Сохранение таймера
-    save: function save(data) {
-      this.saveTimer(data);
-      this.$root.$emit("closeModal");
-    }
-  })
 });
 
 /***/ }),
@@ -551,6 +345,508 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
                          (this && this.clearImmediate);
 
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../webpack/buildin/global.js */ "./node_modules/webpack/buildin/global.js")))
+
+/***/ }),
+
+/***/ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts&":
+/*!**********************************************************************************************************************************************************!*\
+  !*** ./node_modules/ts-loader??ref--5!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts& ***!
+  \**********************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vue_class_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-class-component */ "./node_modules/vue-class-component/dist/vue-class-component.esm.js");
+/* harmony import */ var vuex_class__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex-class */ "./node_modules/vuex-class/lib/index.js");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../functions */ "./src/js/functions.ts");
+/* harmony import */ var _timeChecker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../timeChecker */ "./src/js/timeChecker.ts");
+/* harmony import */ var _ModalComponent_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ModalComponent.vue */ "./src/js/components/ModalComponent.vue");
+/* harmony import */ var _TimerItemComponent_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./TimerItemComponent.vue */ "./src/js/components/TimerItemComponent.vue");
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+// import {mapState, mapActions} from "vuex";
+
+
+
+
+
+var namespace = 'timer';
+var timeCheck = new _timeChecker__WEBPACK_IMPORTED_MODULE_4__["default"]();
+var timerInstance = new _functions__WEBPACK_IMPORTED_MODULE_3__["AdjustingInterval"](function () {
+    timeCheck.check();
+}, 1000, function () {
+    console.warn("The drift exceeded the interval.");
+});
+var timerSound = new _functions__WEBPACK_IMPORTED_MODULE_3__["TimerSound"]('../audio/');
+var TimerComponent = /** @class */ (function (_super) {
+    __extends(TimerComponent, _super);
+    function TimerComponent() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.isShowModal = false;
+        _this.modalTimerId = null;
+        return _this;
+    }
+    TimerComponent.prototype.created = function () {
+        var _this = this;
+        // Запуск общего таймера
+        timerInstance.start();
+        // Сохранить таймер
+        this.$root.$on("saveTimer", function (data) {
+            _this.save(data);
+        });
+        // Открыть окно
+        this.$root.$on("openModal", function (timerId) {
+            _this.openModal(timerId);
+        });
+        // Закрыть окно
+        this.$root.$on("closeModal", function () {
+            _this.isShowModal = false;
+        });
+        // Прослушать звук
+        this.$root.$on("playSong", function (payload) {
+            payload.isPlay
+                ? timerSound.play(payload.songId)
+                : timerSound.stop(payload.songId);
+        });
+        // Отключить звук
+        this.$root.$on("stopSong", function () {
+            timerSound.stopAll();
+        });
+        // Вкл./Выкл. таймер
+        this.$root.$on("toggleTimer", function (id) {
+            _this.toggleTimer(id);
+            _this.stopSoundTimer(id);
+        });
+        // Удалить таймер
+        this.$root.$on("removeTimer", function (id) {
+            _this.removeStartedTimer(id);
+            _this.stopSoundTimer(id);
+            _this.removeTimer(id);
+        });
+        // Сброс таймера
+        this.$root.$on("resetTimer", function (id) {
+            _this.timerState(id, false);
+            _this.resetPassed(id);
+            _this.stopSoundTimer(id);
+        });
+        // Остановка таймера
+        this.$root.$on("stopTimer", function (id) {
+            _this.timerState(id, false);
+        });
+        // Если страница была перезагружена
+        this.timers
+            .filter(function (timer) { return timer.isActive === true; })
+            .forEach(function (timer) {
+            _this.timerState(timer.id, true);
+        });
+    };
+    // data: () => ({
+    //     isShowModal: false,
+    //     modalTimerId: null
+    // }),
+    // Выключение мелодии
+    TimerComponent.prototype.stopSoundTimer = function (id) {
+        var timer = this.getTimer(id);
+        timerSound.stop(timer.song.id);
+    };
+    // Поиск запущенного таймера
+    TimerComponent.prototype.issetStartedTimer = function (id) {
+        return timeCheck.cfg.checks.findIndex(function (item) { return item.id === id; }) !== -1;
+    };
+    // Процесс выполнения таймера
+    TimerComponent.prototype.timerProcess = function (id) {
+        // Обновить пройденное время таймера
+        this.updatePassed(this.getTimer(id));
+    };
+    // Получить данные таймера
+    TimerComponent.prototype.getTimer = function (id) {
+        return this.$store.getters["timer/findTimer"](id);
+    };
+    // Добавить таймер
+    TimerComponent.prototype.startTimer = function (id) {
+        var _this = this;
+        timeCheck.cfg.checks.push({
+            id: id,
+            check: function () { return true; },
+            action: function () {
+                _this.timerProcess(id);
+            }
+        });
+        // обновление
+        timeCheck.update();
+    };
+    // Удаление таймера
+    TimerComponent.prototype.removeStartedTimer = function (id) {
+        if (this.issetStartedTimer(id)) {
+            timeCheck.cfg.checks.splice(timeCheck.cfg.checks.findIndex(function (item) { return item.id === id; }), 1);
+            // обновление
+            timeCheck.update();
+        }
+    };
+    // Тумблер
+    TimerComponent.prototype.toggleTimer = function (id) {
+        this.timerState(id, !this.issetStartedTimer(id));
+    };
+    // Смена состояния таймера
+    TimerComponent.prototype.timerState = function (id, state) {
+        state
+            ? this.startTimer(id) // Включить таймер
+            : this.removeStartedTimer(id); // Отключить таймер
+        // Установка активности
+        this.changeActivity({ id: id, isActive: state });
+    };
+    // Открыть окно
+    TimerComponent.prototype.openModal = function (timerId) {
+        if (timerId === void 0) { timerId = null; }
+        this.modalTimerId = timerId;
+        this.isShowModal = true;
+    };
+    // Сохранение таймера
+    TimerComponent.prototype.save = function (data) {
+        this.saveTimer(data);
+        this.$root.$emit("closeModal");
+    };
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["State"])('timers', { namespace: namespace })
+    ], TimerComponent.prototype, "timers", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["Action"])('changeActivity', { namespace: namespace })
+    ], TimerComponent.prototype, "changeActivity", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["Action"])('resetPassed', { namespace: namespace })
+    ], TimerComponent.prototype, "resetPassed", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["Action"])('updatePassed', { namespace: namespace })
+    ], TimerComponent.prototype, "updatePassed", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["Action"])('saveTimer', { namespace: namespace })
+    ], TimerComponent.prototype, "saveTimer", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["Action"])('removeTimer', { namespace: namespace })
+    ], TimerComponent.prototype, "removeTimer", void 0);
+    TimerComponent = __decorate([
+        Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["default"])({
+            name: "TimerComponent",
+            components: {
+                TimerItem: _TimerItemComponent_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
+                Modal: _ModalComponent_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
+            }
+        })
+    ], TimerComponent);
+    return TimerComponent;
+}(vue__WEBPACK_IMPORTED_MODULE_0__["default"]));
+/* harmony default export */ __webpack_exports__["default"] = (TimerComponent);
+;
+
+
+/***/ }),
+
+/***/ "./node_modules/vue-class-component/dist/vue-class-component.esm.js":
+/*!**************************************************************************!*\
+  !*** ./node_modules/vue-class-component/dist/vue-class-component.esm.js ***!
+  \**************************************************************************/
+/*! exports provided: default, createDecorator, mixins */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createDecorator", function() { return createDecorator; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mixins", function() { return mixins; });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/**
+  * vue-class-component v7.1.0
+  * (c) 2015-present Evan You
+  * @license MIT
+  */
+
+
+// The rational behind the verbose Reflect-feature check below is the fact that there are polyfills
+// which add an implementation for Reflect.defineMetadata but not for Reflect.getOwnMetadataKeys.
+// Without this check consumers will encounter hard to track down runtime errors.
+var reflectionIsSupported = typeof Reflect !== 'undefined' && Reflect.defineMetadata && Reflect.getOwnMetadataKeys;
+function copyReflectionMetadata(to, from) {
+    forwardMetadata(to, from);
+    Object.getOwnPropertyNames(from.prototype).forEach(function (key) {
+        forwardMetadata(to.prototype, from.prototype, key);
+    });
+    Object.getOwnPropertyNames(from).forEach(function (key) {
+        forwardMetadata(to, from, key);
+    });
+}
+function forwardMetadata(to, from, propertyKey) {
+    var metaKeys = propertyKey
+        ? Reflect.getOwnMetadataKeys(from, propertyKey)
+        : Reflect.getOwnMetadataKeys(from);
+    metaKeys.forEach(function (metaKey) {
+        var metadata = propertyKey
+            ? Reflect.getOwnMetadata(metaKey, from, propertyKey)
+            : Reflect.getOwnMetadata(metaKey, from);
+        if (propertyKey) {
+            Reflect.defineMetadata(metaKey, metadata, to, propertyKey);
+        }
+        else {
+            Reflect.defineMetadata(metaKey, metadata, to);
+        }
+    });
+}
+
+var fakeArray = { __proto__: [] };
+var hasProto = fakeArray instanceof Array;
+function createDecorator(factory) {
+    return function (target, key, index) {
+        var Ctor = typeof target === 'function'
+            ? target
+            : target.constructor;
+        if (!Ctor.__decorators__) {
+            Ctor.__decorators__ = [];
+        }
+        if (typeof index !== 'number') {
+            index = undefined;
+        }
+        Ctor.__decorators__.push(function (options) { return factory(options, key, index); });
+    };
+}
+function mixins() {
+    var Ctors = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        Ctors[_i] = arguments[_i];
+    }
+    return vue__WEBPACK_IMPORTED_MODULE_0__["default"].extend({ mixins: Ctors });
+}
+function isPrimitive(value) {
+    var type = typeof value;
+    return value == null || (type !== 'object' && type !== 'function');
+}
+function warn(message) {
+    if (typeof console !== 'undefined') {
+        console.warn('[vue-class-component] ' + message);
+    }
+}
+
+function collectDataFromConstructor(vm, Component) {
+    // override _init to prevent to init as Vue instance
+    var originalInit = Component.prototype._init;
+    Component.prototype._init = function () {
+        var _this = this;
+        // proxy to actual vm
+        var keys = Object.getOwnPropertyNames(vm);
+        // 2.2.0 compat (props are no longer exposed as self properties)
+        if (vm.$options.props) {
+            for (var key in vm.$options.props) {
+                if (!vm.hasOwnProperty(key)) {
+                    keys.push(key);
+                }
+            }
+        }
+        keys.forEach(function (key) {
+            if (key.charAt(0) !== '_') {
+                Object.defineProperty(_this, key, {
+                    get: function () { return vm[key]; },
+                    set: function (value) { vm[key] = value; },
+                    configurable: true
+                });
+            }
+        });
+    };
+    // should be acquired class property values
+    var data = new Component();
+    // restore original _init to avoid memory leak (#209)
+    Component.prototype._init = originalInit;
+    // create plain data object
+    var plainData = {};
+    Object.keys(data).forEach(function (key) {
+        if (data[key] !== undefined) {
+            plainData[key] = data[key];
+        }
+    });
+    if (true) {
+        if (!(Component.prototype instanceof vue__WEBPACK_IMPORTED_MODULE_0__["default"]) && Object.keys(plainData).length > 0) {
+            warn('Component class must inherit Vue or its descendant class ' +
+                'when class property is used.');
+        }
+    }
+    return plainData;
+}
+
+var $internalHooks = [
+    'data',
+    'beforeCreate',
+    'created',
+    'beforeMount',
+    'mounted',
+    'beforeDestroy',
+    'destroyed',
+    'beforeUpdate',
+    'updated',
+    'activated',
+    'deactivated',
+    'render',
+    'errorCaptured',
+    'serverPrefetch' // 2.6
+];
+function componentFactory(Component, options) {
+    if (options === void 0) { options = {}; }
+    options.name = options.name || Component._componentTag || Component.name;
+    // prototype props.
+    var proto = Component.prototype;
+    Object.getOwnPropertyNames(proto).forEach(function (key) {
+        if (key === 'constructor') {
+            return;
+        }
+        // hooks
+        if ($internalHooks.indexOf(key) > -1) {
+            options[key] = proto[key];
+            return;
+        }
+        var descriptor = Object.getOwnPropertyDescriptor(proto, key);
+        if (descriptor.value !== void 0) {
+            // methods
+            if (typeof descriptor.value === 'function') {
+                (options.methods || (options.methods = {}))[key] = descriptor.value;
+            }
+            else {
+                // typescript decorated data
+                (options.mixins || (options.mixins = [])).push({
+                    data: function () {
+                        var _a;
+                        return _a = {}, _a[key] = descriptor.value, _a;
+                    }
+                });
+            }
+        }
+        else if (descriptor.get || descriptor.set) {
+            // computed properties
+            (options.computed || (options.computed = {}))[key] = {
+                get: descriptor.get,
+                set: descriptor.set
+            };
+        }
+    });
+    (options.mixins || (options.mixins = [])).push({
+        data: function () {
+            return collectDataFromConstructor(this, Component);
+        }
+    });
+    // decorate options
+    var decorators = Component.__decorators__;
+    if (decorators) {
+        decorators.forEach(function (fn) { return fn(options); });
+        delete Component.__decorators__;
+    }
+    // find super
+    var superProto = Object.getPrototypeOf(Component.prototype);
+    var Super = superProto instanceof vue__WEBPACK_IMPORTED_MODULE_0__["default"]
+        ? superProto.constructor
+        : vue__WEBPACK_IMPORTED_MODULE_0__["default"];
+    var Extended = Super.extend(options);
+    forwardStaticMembers(Extended, Component, Super);
+    if (reflectionIsSupported) {
+        copyReflectionMetadata(Extended, Component);
+    }
+    return Extended;
+}
+var reservedPropertyNames = [
+    // Unique id
+    'cid',
+    // Super Vue constructor
+    'super',
+    // Component options that will be used by the component
+    'options',
+    'superOptions',
+    'extendOptions',
+    'sealedOptions',
+    // Private assets
+    'component',
+    'directive',
+    'filter'
+];
+var shouldIgnore = {
+    prototype: true,
+    arguments: true,
+    callee: true,
+    caller: true
+};
+function forwardStaticMembers(Extended, Original, Super) {
+    // We have to use getOwnPropertyNames since Babel registers methods as non-enumerable
+    Object.getOwnPropertyNames(Original).forEach(function (key) {
+        // Skip the properties that should not be overwritten
+        if (shouldIgnore[key]) {
+            return;
+        }
+        // Some browsers does not allow reconfigure built-in properties
+        var extendedDescriptor = Object.getOwnPropertyDescriptor(Extended, key);
+        if (extendedDescriptor && !extendedDescriptor.configurable) {
+            return;
+        }
+        var descriptor = Object.getOwnPropertyDescriptor(Original, key);
+        // If the user agent does not support `__proto__` or its family (IE <= 10),
+        // the sub class properties may be inherited properties from the super class in TypeScript.
+        // We need to exclude such properties to prevent to overwrite
+        // the component options object which stored on the extended constructor (See #192).
+        // If the value is a referenced value (object or function),
+        // we can check equality of them and exclude it if they have the same reference.
+        // If it is a primitive value, it will be forwarded for safety.
+        if (!hasProto) {
+            // Only `cid` is explicitly exluded from property forwarding
+            // because we cannot detect whether it is a inherited property or not
+            // on the no `__proto__` environment even though the property is reserved.
+            if (key === 'cid') {
+                return;
+            }
+            var superDescriptor = Object.getOwnPropertyDescriptor(Super, key);
+            if (!isPrimitive(descriptor.value) &&
+                superDescriptor &&
+                superDescriptor.value === descriptor.value) {
+                return;
+            }
+        }
+        // Warn if the users manually declare reserved properties
+        if ( true &&
+            reservedPropertyNames.indexOf(key) >= 0) {
+            warn("Static property name '" + key + "' declared on class '" + Original.name + "' " +
+                'conflicts with reserved property name of Vue internal. ' +
+                'It may cause unexpected behavior of the component. Consider renaming the property.');
+        }
+        Object.defineProperty(Extended, key, descriptor);
+    });
+}
+
+function Component(options) {
+    if (typeof options === 'function') {
+        return componentFactory(options);
+    }
+    return function (Component) {
+        return componentFactory(Component, options);
+    };
+}
+Component.registerHooks = function registerHooks(keys) {
+    $internalHooks.push.apply($internalHooks, keys);
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (Component);
+
+
 
 /***/ }),
 
@@ -1178,6 +1474,126 @@ function normalizeComponent (
 
 /***/ }),
 
+/***/ "./node_modules/vuex-class/lib/bindings.js":
+/*!*************************************************!*\
+  !*** ./node_modules/vuex-class/lib/bindings.js ***!
+  \*************************************************/
+/*! exports provided: State, Getter, Action, Mutation, namespace */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "State", function() { return State; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Getter", function() { return Getter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Action", function() { return Action; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Mutation", function() { return Mutation; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "namespace", function() { return namespace; });
+/* harmony import */ var vue_class_component__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-class-component */ "./node_modules/vue-class-component/dist/vue-class-component.esm.js");
+/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
+
+
+var State = createBindingHelper('computed', vuex__WEBPACK_IMPORTED_MODULE_1__["mapState"]);
+var Getter = createBindingHelper('computed', vuex__WEBPACK_IMPORTED_MODULE_1__["mapGetters"]);
+var Action = createBindingHelper('methods', vuex__WEBPACK_IMPORTED_MODULE_1__["mapActions"]);
+var Mutation = createBindingHelper('methods', vuex__WEBPACK_IMPORTED_MODULE_1__["mapMutations"]);
+function namespace(namespace, helper) {
+    function createNamespacedHelper(helper) {
+        function namespacedHelper(a, b) {
+            if (typeof b === 'string') {
+                var key = b;
+                var proto = a;
+                return helper(key, { namespace: namespace })(proto, key);
+            }
+            var type = a;
+            var options = merge(b || {}, { namespace: namespace });
+            return helper(type, options);
+        }
+        return namespacedHelper;
+    }
+    if (helper) {
+        console.warn('[vuex-class] passing the 2nd argument to `namespace` function is deprecated. pass only namespace string instead.');
+        return createNamespacedHelper(helper);
+    }
+    return {
+        State: createNamespacedHelper(State),
+        Getter: createNamespacedHelper(Getter),
+        Mutation: createNamespacedHelper(Mutation),
+        Action: createNamespacedHelper(Action)
+    };
+}
+function createBindingHelper(bindTo, mapFn) {
+    function makeDecorator(map, namespace) {
+        return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_0__["createDecorator"])(function (componentOptions, key) {
+            if (!componentOptions[bindTo]) {
+                componentOptions[bindTo] = {};
+            }
+            var mapObject = (_a = {}, _a[key] = map, _a);
+            componentOptions[bindTo][key] = namespace !== undefined
+                ? mapFn(namespace, mapObject)[key]
+                : mapFn(mapObject)[key];
+            var _a;
+        });
+    }
+    function helper(a, b) {
+        if (typeof b === 'string') {
+            var key = b;
+            var proto = a;
+            return makeDecorator(key, undefined)(proto, key);
+        }
+        var namespace = extractNamespace(b);
+        var type = a;
+        return makeDecorator(type, namespace);
+    }
+    return helper;
+}
+function extractNamespace(options) {
+    var n = options && options.namespace;
+    if (typeof n !== 'string') {
+        return undefined;
+    }
+    if (n[n.length - 1] !== '/') {
+        return n + '/';
+    }
+    return n;
+}
+function merge(a, b) {
+    var res = {};
+    [a, b].forEach(function (obj) {
+        Object.keys(obj).forEach(function (key) {
+            res[key] = obj[key];
+        });
+    });
+    return res;
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/vuex-class/lib/index.js":
+/*!**********************************************!*\
+  !*** ./node_modules/vuex-class/lib/index.js ***!
+  \**********************************************/
+/*! exports provided: State, Getter, Action, Mutation, namespace */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _bindings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./bindings */ "./node_modules/vuex-class/lib/bindings.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "State", function() { return _bindings__WEBPACK_IMPORTED_MODULE_0__["State"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Getter", function() { return _bindings__WEBPACK_IMPORTED_MODULE_0__["Getter"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Action", function() { return _bindings__WEBPACK_IMPORTED_MODULE_0__["Action"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Mutation", function() { return _bindings__WEBPACK_IMPORTED_MODULE_0__["Mutation"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "namespace", function() { return _bindings__WEBPACK_IMPORTED_MODULE_0__["namespace"]; });
+
+
+
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/global.js":
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
@@ -1253,22 +1669,15 @@ module.exports = function(module) {
 
 /***/ }),
 
-/***/ "./src/js/StoreSelector.js":
+/***/ "./src/js/StoreSelector.ts":
 /*!*********************************!*\
-  !*** ./src/js/StoreSelector.js ***!
+  !*** ./src/js/StoreSelector.ts ***!
   \*********************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return StoreSelector; });
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 /**
  * localStorage - не имеют срока годности
  * sessionStorage - очищаются по окончании сеанса страницы, то есть при закрытии страницы.
@@ -1276,38 +1685,29 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
  * @export
  * @class StoreSelector
  */
-var StoreSelector =
-/*#__PURE__*/
-function () {
-  function StoreSelector() {
-    var type = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "local";
-
-    _classCallCheck(this, StoreSelector);
-
-    if (type === "local") {
-      // localStorage
-      this.storage = localStorage;
-    } else if (type === "session") {
-      // sessionStorage
-      this.storage = sessionStorage;
-    } else {
-      throw new Error("\u041D\u0435 \u0432\u0435\u0440\u043D\u043E \u0443\u043A\u0430\u0437\u0430\u043D \u0442\u0438\u043F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0434\u0430\u043D\u043D\u044B\u0445.");
+var StoreSelector = /** @class */ (function () {
+    function StoreSelector(type) {
+        if (type === void 0) { type = "local"; }
+        if (type === "local") { // localStorage
+            this.storage = localStorage;
+        }
+        else if (type === "session") { // sessionStorage
+            this.storage = sessionStorage;
+        }
+        else {
+            throw new Error("\u041D\u0435 \u0432\u0435\u0440\u043D\u043E \u0443\u043A\u0430\u0437\u0430\u043D \u0442\u0438\u043F \u0445\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0434\u0430\u043D\u043D\u044B\u0445.");
+        }
     }
-  }
-  /**
-   * Подготовка значения
-   *
-   * @param {*} value
-   * @return {String}
-   * @memberof StoreSelector
-   */
-
-
-  _createClass(StoreSelector, [{
-    key: "_serialize",
-    value: function _serialize(value) {
-      return JSON.stringify(value);
-    }
+    /**
+     * Подготовка значения
+     *
+     * @param {*} value
+     * @return {String}
+     * @memberof StoreSelector
+     */
+    StoreSelector.prototype._serialize = function (value) {
+        return JSON.stringify(value);
+    };
     /**
      * Получение значения
      *
@@ -1316,24 +1716,19 @@ function () {
      * @return {*}
      * @memberof StoreSelector
      */
-
-  }, {
-    key: "_unserialize",
-    value: function _unserialize(value, defaultValue) {
-      if (!value && !!defaultValue) {
-        return defaultValue;
-      }
-
-      var val = "";
-
-      try {
-        val = JSON.parse(value);
-      } catch (e) {
-        val = value;
-      }
-
-      return val !== undefined ? val : defaultValue;
-    }
+    StoreSelector.prototype._unserialize = function (value, defaultValue) {
+        if (!value && !!defaultValue) {
+            return defaultValue;
+        }
+        var val = "";
+        try {
+            val = JSON.parse(value);
+        }
+        catch (e) {
+            val = value;
+        }
+        return val !== undefined ? val : defaultValue;
+    };
     /**
      * Чтение
      *
@@ -1342,13 +1737,10 @@ function () {
      * @return {*}
      * @memberof StoreSelector
      */
-
-  }, {
-    key: "get",
-    value: function get(key, defaultOptionalValue) {
-      var value = this.storage.getItem(key);
-      return this._unserialize(value, defaultOptionalValue);
-    }
+    StoreSelector.prototype.get = function (key, defaultOptionalValue) {
+        var value = this.storage.getItem(key);
+        return this._unserialize(value, defaultOptionalValue);
+    };
     /**
      * Запись
      *
@@ -1357,133 +1749,114 @@ function () {
      * @return {*}
      * @memberof StoreSelector
      */
-
-  }, {
-    key: "set",
-    value: function set(key, value) {
-      this.storage.setItem(key, this._serialize(value));
-      return value;
-    }
+    StoreSelector.prototype.set = function (key, value) {
+        this.storage.setItem(key, this._serialize(value));
+        return value;
+    };
     /**
      * Удаление записи
      *
      * @param {String} key
      * @memberof StoreSelector
      */
-
-  }, {
-    key: "remove",
-    value: function remove(key) {
-      this.storage.removeItem(key);
-    }
+    StoreSelector.prototype.remove = function (key) {
+        this.storage.removeItem(key);
+    };
     /**
      * Очистка хранилища
      *
      * @memberof StoreSelector
      */
-
-  }, {
-    key: "clear",
-    value: function clear() {
-      this.storage.clear();
-    }
-  }]);
-
-  return StoreSelector;
-}();
-
+    StoreSelector.prototype.clear = function () {
+        this.storage.clear();
+    };
+    return StoreSelector;
+}());
+/* harmony default export */ __webpack_exports__["default"] = (StoreSelector);
 
 
 /***/ }),
 
-/***/ "./src/js/app.js":
+/***/ "./src/js/app.ts":
 /*!***********************!*\
-  !*** ./src/js/app.js ***!
+  !*** ./src/js/app.ts ***!
   \***********************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
 /* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./store */ "./src/js/store/index.js");
-/* harmony import */ var _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./filters/formatSecond2Human */ "./src/js/filters/formatSecond2Human.js");
-/* harmony import */ var _components_TimerComponent__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/TimerComponent */ "./src/js/components/TimerComponent.vue");
-/* harmony import */ var favico_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! favico.js */ "./node_modules/favico.js/favico.js");
-/* harmony import */ var favico_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(favico_js__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./filters/formatSecond2Human */ "./src/js/filters/formatSecond2Human.ts");
+/* harmony import */ var _components_TimerComponent_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/TimerComponent.vue */ "./src/js/components/TimerComponent.vue");
 /* eslint no-console: ["error", {allow: ["log"]}]*/
 
 
 
 
-
-vue__WEBPACK_IMPORTED_MODULE_0___default.a.filter('formatSecond2Human', _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__["formatSecond2Human"]); // Set the name of the hidden property and the change event for visibility
-
+var Favico = __webpack_require__(/*! favico.js */ "./node_modules/favico.js/favico.js");
+vue__WEBPACK_IMPORTED_MODULE_0__["default"].filter('formatSecond2Human', _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__["formatSecond2Human"]);
+// Set the name of the hidden property and the change event for visibility
 var hidden;
 var visibilityChange;
-
-if (typeof document.hidden !== "undefined") {
-  // Opera 12.10 and Firefox 18 and later support
-  hidden = "hidden";
-  visibilityChange = "visibilitychange";
-} else if (typeof document.msHidden !== "undefined") {
-  hidden = "msHidden";
-  visibilityChange = "msvisibilitychange";
-} else if (typeof document.webkitHidden !== "undefined") {
-  hidden = "webkitHidden";
-  visibilityChange = "webkitvisibilitychange";
-} // Добавление в иконку уведомление о количестве просроченных таймеров
-
-
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+    hidden = "hidden";
+    visibilityChange = "visibilitychange";
+}
+else if (typeof document.msHidden !== "undefined") {
+    hidden = "msHidden";
+    visibilityChange = "msvisibilitychange";
+}
+else if (typeof document.webkitHidden !== "undefined") {
+    hidden = "webkitHidden";
+    visibilityChange = "webkitvisibilitychange";
+}
+// Добавление в иконку уведомление о количестве просроченных таймеров
 var faviconBadge = 0;
-var favicon = new favico_js__WEBPACK_IMPORTED_MODULE_4___default.a({
-  animation: "fade"
+var favicon = new Favico({
+    animation: "fade"
 });
-var app = new vue__WEBPACK_IMPORTED_MODULE_0___default.a({
-  store: _store__WEBPACK_IMPORTED_MODULE_1__["default"],
-  created: function created() {
-    var _this = this;
-
-    // Уведомление
-    this.$root.$on("addNotify", function () {
-      faviconBadge++;
-
-      _this.handlerNotify();
-    }); // Warn if the browser doesn't support addEventListener or the Page Visibility API
-
-    if (typeof document.addEventListener === "undefined" || hidden === undefined) {
-      console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
-    } else {
-      document.addEventListener(visibilityChange, function () {
-        _this.handlerNotify();
-      }, false);
-    }
-  },
-  methods: {
-    handlerNotify: function handlerNotify() {
-      var title = document.getElementsByTagName("title");
-
-      if (document[hidden] && faviconBadge) {
-        favicon.badge(faviconBadge);
-        title.textContent = "\u041F\u0440\u043E\u043F\u0443\u0449\u0435\u043D\u043D\u044B\u0435 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F - \u0422\u0430\u0439\u043C\u0435\u0440";
-      } else if (faviconBadge) {
-        faviconBadge = 0;
-        favicon.reset();
-        title.textContent = "\u0422\u0430\u0439\u043C\u0435\u0440";
-      }
-    }
-  },
-  data: function data() {
-    return {
-      isShowModal: false
-    };
-  },
-  render: function render(h) {
-    return h(_components_TimerComponent__WEBPACK_IMPORTED_MODULE_3__["default"]);
-  }
+var app = new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
+    store: _store__WEBPACK_IMPORTED_MODULE_1__["default"],
+    created: function () {
+        var _this = this;
+        // Уведомление
+        this.$root.$on("addNotify", function () {
+            faviconBadge++;
+            _this.handlerNotify();
+        });
+        // Warn if the browser doesn't support addEventListener or the Page Visibility API
+        if (typeof document.addEventListener === "undefined" || hidden === undefined) {
+            console.log("This demo requires a browser, such as Google Chrome or Firefox, that supports the Page Visibility API.");
+        }
+        else {
+            document.addEventListener(visibilityChange, function () {
+                _this.handlerNotify();
+            }, false);
+        }
+    },
+    methods: {
+        handlerNotify: function () {
+            var title = document.getElementsByTagName("title")[0];
+            if (Object.prototype.hasOwnProperty.call(document, hidden) && faviconBadge) {
+                favicon.badge(faviconBadge);
+                title.text = "\u041F\u0440\u043E\u043F\u0443\u0449\u0435\u043D\u043D\u044B\u0435 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u044F - \u0422\u0430\u0439\u043C\u0435\u0440";
+            }
+            else if (faviconBadge) {
+                faviconBadge = 0;
+                favicon.reset();
+                title.text = "\u0422\u0430\u0439\u043C\u0435\u0440";
+            }
+        }
+    },
+    data: function () { return ({
+        isShowModal: false
+    }); },
+    render: function (h) { return h(_components_TimerComponent_vue__WEBPACK_IMPORTED_MODULE_3__["default"]); }
 });
 app.$mount("#app");
+
 
 /***/ }),
 
@@ -1566,7 +1939,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TimerComponent_vue_vue_type_template_id_1a1fe704___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TimerComponent.vue?vue&type=template&id=1a1fe704& */ "./src/js/components/TimerComponent.vue?vue&type=template&id=1a1fe704&");
-/* harmony import */ var _TimerComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TimerComponent.vue?vue&type=script&lang=js& */ "./src/js/components/TimerComponent.vue?vue&type=script&lang=js&");
+/* harmony import */ var _TimerComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TimerComponent.vue?vue&type=script&lang=ts& */ "./src/js/components/TimerComponent.vue?vue&type=script&lang=ts&");
 /* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -1576,7 +1949,7 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _TimerComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _TimerComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_1__["default"],
   _TimerComponent_vue_vue_type_template_id_1a1fe704___WEBPACK_IMPORTED_MODULE_0__["render"],
   _TimerComponent_vue_vue_type_template_id_1a1fe704___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
@@ -1593,17 +1966,17 @@ component.options.__file = "src/js/components/TimerComponent.vue"
 
 /***/ }),
 
-/***/ "./src/js/components/TimerComponent.vue?vue&type=script&lang=js&":
+/***/ "./src/js/components/TimerComponent.vue?vue&type=script&lang=ts&":
 /*!***********************************************************************!*\
-  !*** ./src/js/components/TimerComponent.vue?vue&type=script&lang=js& ***!
+  !*** ./src/js/components/TimerComponent.vue?vue&type=script&lang=ts& ***!
   \***********************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./TimerComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_ts_loader_index_js_ref_5_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/ts-loader??ref--5!../../../node_modules/vue-loader/lib??vue-loader-options!./TimerComponent.vue?vue&type=script&lang=ts& */ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_ts_loader_index_js_ref_5_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
@@ -1694,9 +2067,9 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ "./src/js/filters/formatSecond2Human.js":
+/***/ "./src/js/filters/formatSecond2Human.ts":
 /*!**********************************************!*\
-  !*** ./src/js/filters/formatSecond2Human.js ***!
+  !*** ./src/js/filters/formatSecond2Human.ts ***!
   \**********************************************/
 /*! exports provided: formatSecond2Human */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -1705,7 +2078,6 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formatSecond2Human", function() { return formatSecond2Human; });
 var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-
 __webpack_require__(/*! moment-duration-format */ "./node_modules/moment-duration-format/lib/moment-duration-format.js");
 /**
  * Преобразовать секунды в 00:00:00
@@ -1714,20 +2086,17 @@ __webpack_require__(/*! moment-duration-format */ "./node_modules/moment-duratio
  * @param {Number} seconds
  * @return {String}
  */
-
-
 function formatSecond2Human(seconds) {
-  var duration = moment.duration(seconds, "seconds");
-  return duration.format("hh:mm:ss", {
-    trim: false
-  });
+    var duration = moment.duration(seconds, "seconds");
+    return duration.format("hh:mm:ss", { trim: false });
 }
+
 
 /***/ }),
 
-/***/ "./src/js/functions.js":
+/***/ "./src/js/functions.ts":
 /*!*****************************!*\
-  !*** ./src/js/functions.js ***!
+  !*** ./src/js/functions.ts ***!
   \*****************************/
 /*! exports provided: IDGenerator, AdjustingInterval, timeStr2Array, time2Second, TimerSound, default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -1739,158 +2108,131 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "timeStr2Array", function() { return timeStr2Array; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "time2Second", function() { return time2Second; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "TimerSound", function() { return TimerSound; });
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 var moment = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
-
 __webpack_require__(/*! moment-duration-format */ "./node_modules/moment-duration-format/lib/moment-duration-format.js");
 /**
- * Генератор Id
+ * Генератор ID
  *
  * @export
  * @class IDGenerator
  */
-
-
-var IDGenerator =
-/*#__PURE__*/
-function () {
-  function IDGenerator() {
-    _classCallCheck(this, IDGenerator);
-
-    this.length = 8;
-    this.timestamp = +new Date();
-  }
-
-  _createClass(IDGenerator, [{
-    key: "_getRandomInt",
-    value: function _getRandomInt(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
+var IDGenerator = /** @class */ (function () {
+    function IDGenerator() {
+        this.length = 8;
+        this.timestamp = +new Date();
     }
-  }, {
-    key: "generate",
-    value: function generate() {
-      var ts = this.timestamp.toString();
-      var parts = ts.split("").reverse();
-      var id = "";
+    /**
+     * Получает случайное число из нужного диапазона
+     *
+     * @private
+     * @param {number} min
+     * @param {number} max
+     * @returns {number}
+     * @memberof IDGenerator
+     */
+    IDGenerator.prototype._getRandomInt = function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    };
+    /**
+     * Создание случайного ID
+     *
+     * @returns {number}
+     * @memberof IDGenerator
+     */
+    IDGenerator.prototype.generate = function () {
+        var ts = this.timestamp.toString();
+        var parts = ts.split("").reverse();
+        var id = "";
+        for (var i = 0; i < this.length; ++i) {
+            var index = this._getRandomInt(0, parts.length - 1);
+            id += parts[index];
+        }
+        return Number(id);
+    };
+    return IDGenerator;
+}());
 
-      for (var i = 0; i < this.length; ++i) {
-        var index = this._getRandomInt(0, parts.length - 1);
-
-        id += parts[index];
-      }
-
-      return Number(id);
-    }
-  }]);
-
-  return IDGenerator;
-}();
 /**
  * Саморегулирующийся интервал для учета дрейфа
  *
  * @export
  * @class AdjustingInterval
  */
-
-var AdjustingInterval =
-/*#__PURE__*/
-function () {
-  /**
-   * Creates an instance of AdjustingInterval.
-   * @param {AdjustingInterval~callback} callback
-   * @param {*} interval
-   * @param {AdjustingInterval~errorCallback} [errorCallback=null]
-   * @memberof AdjustingInterval
-   */
-  function AdjustingInterval(callback, interval) {
-    var errorCallback = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-
-    _classCallCheck(this, AdjustingInterval);
-
-    this.running = false;
-    this.interval = interval;
-    this.callback = callback;
-    this.errorCallback = errorCallback;
-  }
-
-  _createClass(AdjustingInterval, [{
-    key: "start",
-    value: function start() {
-      var _this = this;
-
-      this.running = true;
-      this.expected = Date.now() + this.interval;
-      this.timeout = setTimeout(function () {
-        return _this._step();
-      }, this.interval);
+var AdjustingInterval = /** @class */ (function () {
+    /**
+     * Creates an instance of AdjustingInterval.
+     *
+     * @param {AdjustingInterval~callback} callback
+     * @param {*} interval
+     * @param {AdjustingInterval~errorCallback} [errorCallback=null]
+     * @memberof AdjustingInterval
+     */
+    function AdjustingInterval(callback, interval, errorCallback) {
+        this.errorCallback = null;
+        this._running = false;
+        this.interval = interval;
+        this.callback = callback;
+        this.errorCallback = errorCallback;
+        this._expected = 0;
+        this._timeout = 0;
     }
-  }, {
-    key: "stop",
-    value: function stop() {
-      this.running = false;
-      clearTimeout(this.timeout);
-    }
-  }, {
-    key: "_step",
-    value: function _step() {
-      var _this2 = this;
-
-      var drift = Date.now() - this.expected;
-
-      if (drift > this.interval) {
-        if (this.errorCallback) {
-          this.errorCallback();
+    AdjustingInterval.prototype.start = function () {
+        var _this = this;
+        this._running = true;
+        this._expected = Date.now() + this.interval;
+        this._timeout = window.setTimeout(function () { return _this._step(); }, this.interval);
+    };
+    AdjustingInterval.prototype.stop = function () {
+        this._running = false;
+        window.clearTimeout(this._timeout);
+    };
+    AdjustingInterval.prototype._step = function () {
+        var _this = this;
+        var drift = Date.now() - this._expected;
+        if (drift > this.interval) {
+            if (this.errorCallback) {
+                this.errorCallback();
+            }
         }
-      }
+        this.callback();
+        if (this._running) {
+            this._expected += this.interval;
+            this._timeout = window.setTimeout(function () { return _this._step(); }, Math.max(0, this.interval - drift));
+        }
+    };
+    return AdjustingInterval;
+}());
 
-      this.callback();
-
-      if (this.running) {
-        this.expected += this.interval;
-        this.timeout = setTimeout(function () {
-          return _this2._step();
-        }, Math.max(0, this.interval - drift));
-      }
-    }
-  }]);
-
-  return AdjustingInterval;
-}();
 /**
  * Преобразовать секунды в массив [час, минута, секунда]
  *
  * @export
- * @param {Number} time
- * @return {Array}
+ * @param {number} time
+ * @returns {number[]}
  */
-
 function timeStr2Array(time) {
-  return moment.duration(time, "seconds").format("hh:mm:ss", {
-    trim: false
-  }).split(":").map(Number);
+    return moment
+        .duration(time, "seconds")
+        .format("hh:mm:ss", { trim: false })
+        .split(":")
+        .map(Number);
 }
 /**
  * Преобразовать время в секунды
  *
  * @export
- * @param {Number} hour
- * @param {Number} minute
- * @param {Number} second
- * @return {Number}
+ * @param {number} hour
+ * @param {number} minute
+ * @param {number} second
+ * @returns {number}
  */
-
 function time2Second(hour, minute, second) {
-  var begin = moment.duration({
-    hours: hour,
-    minutes: minute,
-    seconds: second
-  }).asSeconds();
-  return begin;
+    var begin = moment.duration({
+        hours: hour,
+        minutes: minute,
+        seconds: second
+    }).asSeconds();
+    return begin;
 }
 /**
  * Управление аудио
@@ -1898,114 +2240,83 @@ function time2Second(hour, minute, second) {
  * @export
  * @class TimerSound
  */
+var TimerSound = /** @class */ (function () {
+    /**
+     * Creates an instance of TimerSound.
 
-var TimerSound =
-/*#__PURE__*/
-function () {
-  /**
-   * Creates an instance of TimerSound.
-   * @param {String} [path='']
-   * @memberof TimerSound
-   */
-  function TimerSound() {
-    var path = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
-
-    _classCallCheck(this, TimerSound);
-
-    this.path = path;
-  }
-  /**
-   * Запуск аудио
-   *
-   * @param {Number|String} id
-   * @memberof TimerSound
-   */
-
-
-  _createClass(TimerSound, [{
-    key: "play",
-    value: function play(id) {
-      var _this3 = this;
-
-      this.stopAll(function () {
-        var el = document.getElementById("sound-".concat(id));
-
-        if (el) {
-          el.play();
-        } else {
-          var a = document.createElement("audio");
-          a.src = "".concat(_this3.path).concat(id, ".mp3");
-          a.volume = 0.75;
-          a.setAttribute("autoplay", true);
-          a.setAttribute("loop", true);
-          a.setAttribute("id", "sound-".concat(id));
-          document.body.appendChild(a);
-        }
-      });
+     * @param {string} [path=``]
+     * @memberof TimerSound
+     */
+    function TimerSound(path) {
+        if (path === void 0) { path = ""; }
+        this.path = path;
     }
+    /**
+     * Запуск аудио
+     *
+     * @param {Number|String} id
+     * @memberof TimerSound
+     */
+    TimerSound.prototype.play = function (id) {
+        var _this = this;
+        this.stopAll(function () {
+            var el = document.getElementById("sound-" + id);
+            if (el) {
+                el.play();
+            }
+            else {
+                var a = document.createElement("audio");
+                a.src = "" + _this.path + id + ".mp3";
+                a.volume = 0.75;
+                a.setAttribute("autoplay", "true");
+                a.setAttribute("loop", "true");
+                a.setAttribute("id", "sound-" + id);
+                document.body.appendChild(a);
+            }
+        });
+    };
     /**
      * Остановка аудио
      *
      * @param {Number|String} id
      * @memberof TimerSound
      */
-
-  }, {
-    key: "stop",
-    value: function stop(id) {
-      var sound = document.getElementById("sound-".concat(id));
-
-      this._stopSong(sound);
-    }
+    TimerSound.prototype.stop = function (id) {
+        var el = document.getElementById("sound-" + id);
+        this._stopSong(el);
+    };
     /**
      * Остановка аудио
      *
-     * @param {HTMLElement|null} el
+     * @param {HTMLMediaElement} el
      * @memberof TimerSound
      */
-
-  }, {
-    key: "_stopSong",
-    value: function _stopSong(el) {
-      if (el && el.duration > 0 && !el.paused) {
-        el.pause();
-        el.currentTime = 0;
-      }
-    }
+    TimerSound.prototype._stopSong = function (el) {
+        if (el && el.duration > 0 && !el.paused) {
+            el.pause();
+            el.currentTime = 0;
+        }
+    };
     /**
      * Остановка всех аудио
      *
      * @param {TimerSound~callback} fn
      * @memberof TimerSound
      */
+    TimerSound.prototype.stopAll = function (fn) {
+        var _this = this;
+        document.querySelectorAll("audio[id^=sound-]").forEach(function (el) {
+            _this._stopSong(el);
+        });
+        if (fn) {
+            fn();
+        }
+    };
+    return TimerSound;
+}());
 
-  }, {
-    key: "stopAll",
-    value: function stopAll(fn) {
-      var _this4 = this;
+/* harmony default export */ __webpack_exports__["default"] = ({ IDGenerator: IDGenerator, AdjustingInterval: AdjustingInterval, timeStr2Array: timeStr2Array, time2Second: time2Second, TimerSound: TimerSound });
 
-      var sounds = document.querySelectorAll("audio[id^=sound-]");
-      sounds = [].slice.call(sounds); // IE
-
-      sounds.forEach(function (sound) {
-        _this4._stopSong(sound);
-      });
-
-      if (fn) {
-        fn();
-      }
-    }
-  }]);
-
-  return TimerSound;
-}();
-/* harmony default export */ __webpack_exports__["default"] = ({
-  IDGenerator: IDGenerator,
-  AdjustingInterval: AdjustingInterval,
-  timeStr2Array: timeStr2Array,
-  time2Second: time2Second,
-  TimerSound: TimerSound
-});
 
 /***/ }),
 
@@ -2018,15 +2329,14 @@ function () {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.js");
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(vue__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _modules_timer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/timer */ "./src/js/store/modules/timer.js");
+/* harmony import */ var _modules_timer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/timer */ "./src/js/store/modules/timer.ts");
  // import 'es6-promise/auto';
 
 
 
-vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
+vue__WEBPACK_IMPORTED_MODULE_0__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 /* harmony default export */ __webpack_exports__["default"] = (new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
   modules: {
     timer: _modules_timer__WEBPACK_IMPORTED_MODULE_2__["default"]
@@ -2035,383 +2345,296 @@ vue__WEBPACK_IMPORTED_MODULE_0___default.a.use(vuex__WEBPACK_IMPORTED_MODULE_1__
 
 /***/ }),
 
-/***/ "./src/js/store/modules/timer.js":
+/***/ "./src/js/store/modules/timer.ts":
 /*!***************************************!*\
-  !*** ./src/js/store/modules/timer.js ***!
+  !*** ./src/js/store/modules/timer.ts ***!
   \***************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _StoreSelector__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../StoreSelector */ "./src/js/StoreSelector.js");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../functions */ "./src/js/functions.js");
+/* harmony import */ var _StoreSelector__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../StoreSelector */ "./src/js/StoreSelector.ts");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../functions */ "./src/js/functions.ts");
 /* eslint no-shadow: ["error", { "allow": ["state", "timers", "getters"] }]*/
 
- // initial state
 
+// initial state
 var state = {
-  // Таймеры
-  timers: [],
-  // Параметры по умолчанию
-  defaultParams: {
-    name: "\u0422\u0430\u0439\u043C\u0435\u0440 \u21161",
-    song: null,
-    isActive: false,
-    begin: 600,
-    // Начальное значение секунд
-    passed: 0 // Прошло секунд
-
-  },
-  // Список звуков уведомлений
-  songs: [{
-    id: 1,
-    title: "Songs #1"
-  }, {
-    id: 2,
-    title: "Alarm"
-  }, {
-    id: 3,
-    title: "\u0414\u0440\u0438\u0442\u0430\u0442\u0443\u0448\u0435\u0447\u043A\u0438"
-  }, {
-    id: 4,
-    title: "Super Mario"
-  }, {
-    id: 5,
-    title: "Roll Up"
-  }, {
-    id: 6,
-    title: "Bitter sweet"
-  }, {
-    id: 7,
-    title: "San Andreas"
-  }, {
-    id: 8,
-    title: "\u041F\u043E\u043B\u0438\u0446\u0438\u044F"
-  }, {
-    id: 9,
-    title: "Dubstep violin"
-  }, {
-    id: 10,
-    title: "Symphonie (remix)"
-  }]
-}; // Получаем сохраненные таймеры
-
-var StoreTimers = new _StoreSelector__WEBPACK_IMPORTED_MODULE_0__["default"]("local"); // Получение сохраненных таймеров
-
-var timers = StoreTimers.get("timers", []); // Установка таймера по умолчанию, если нет таймеров
-
-if (!timers.length) {
-  var generator = new _functions__WEBPACK_IMPORTED_MODULE_1__["IDGenerator"]();
-  timers.push(Object.assign(state.defaultParams, {
-    id: generator.generate(),
-    song: state.songs[0]
-  })); // @TODO - Вынести в commit
-
-  StoreTimers.set("timers", timers);
-} // Установка таймеров в state
-
-
-state = Object.assign(state, {
-  timers: timers
-}); // getters
-
-var getters = {
-  // Получить настройки по умолчанию
-  getDefaultParams: function getDefaultParams(state) {
-    return state.defaultParams;
-  },
-  // Поиск таймера
-  findTimer: function findTimer(state) {
-    return function (id) {
-      return state.timers.find(function (item) {
-        return item.id === id;
-      });
-    };
-  }
-}; // actions
-
-var actions = {
-  // Обновить пройденное время таймера
-  updatePassed: function updatePassed(_ref, timer) {
-    var commit = _ref.commit,
-        state = _ref.state;
-    var newTimers = state.timers.map(function (item) {
-      if (item.id === timer.id && timer.passed < item.begin) {
-        item.passed = timer.passed + 1;
-      }
-
-      return item;
-    });
-    commit("updateTimersStore", newTimers);
-  },
-  // Смена состояния активности
-  changeActivity: function changeActivity(_ref2, _ref3) {
-    var commit = _ref2.commit,
-        state = _ref2.state;
-    var id = _ref3.id,
-        isActive = _ref3.isActive;
-    var newTimers = state.timers.map(function (item) {
-      if (item.id === id) {
-        item.isActive = isActive;
-      }
-
-      return item;
-    });
-    commit("updateTimersStore", newTimers);
-  },
-  // Сброс пройденного времени
-  resetPassed: function resetPassed(_ref4, id) {
-    var commit = _ref4.commit,
-        state = _ref4.state;
-    var newTimers = state.timers.map(function (item) {
-      if (item.id === id) {
-        item.passed = 0;
-      }
-
-      return item;
-    });
-    commit("updateTimersStore", newTimers);
-  },
-  // Удаление таймера
-  removeTimer: function removeTimer(_ref5, id) {
-    var commit = _ref5.commit,
-        state = _ref5.state;
-    var newTimers = state.timers.filter(function (item) {
-      return item.id !== id;
-    });
-    commit("updateTimersStore", newTimers);
-  },
-  // Сохранение таймера
-  saveTimer: function saveTimer(_ref6, data) {
-    var commit = _ref6.commit,
-        state = _ref6.state,
-        getters = _ref6.getters;
-    var begin = Object(_functions__WEBPACK_IMPORTED_MODULE_1__["time2Second"])(data.hour, data.minute, data.second);
-    var timer = getters.findTimer(data.id);
-
-    if (timer) {
-      var newTimers = state.timers.map(function (item) {
-        if (item.id === data.id) {
-          item.name = data.name;
-          item.song = data.song;
-          item.begin = begin;
-          item.passed = 0; // Сброс пройденного времени
+    // Таймеры
+    timers: [],
+    // Параметры по умолчанию
+    defaultParams: {
+        name: "\u0422\u0430\u0439\u043C\u0435\u0440 \u21161",
+        song: null,
+        isActive: false,
+        begin: 600,
+        passed: 0,
+    },
+    // Список звуков уведомлений
+    songs: [
+        {
+            id: 1,
+            title: "Songs #1"
+        }, {
+            id: 2,
+            title: "Alarm"
+        }, {
+            id: 3,
+            title: "\u0414\u0440\u0438\u0442\u0430\u0442\u0443\u0448\u0435\u0447\u043A\u0438"
+        }, {
+            id: 4,
+            title: "Super Mario"
+        }, {
+            id: 5,
+            title: "Roll Up"
+        }, {
+            id: 6,
+            title: "Bitter sweet"
+        }, {
+            id: 7,
+            title: "San Andreas"
+        }, {
+            id: 8,
+            title: "\u041F\u043E\u043B\u0438\u0446\u0438\u044F"
+        }, {
+            id: 9,
+            title: "Dubstep violin"
+        }, {
+            id: 10,
+            title: "Symphonie (remix)"
         }
-
-        return item;
-      });
-      commit("updateTimersStore", newTimers);
-    } else {
-      var _generator = new _functions__WEBPACK_IMPORTED_MODULE_1__["IDGenerator"]();
-
-      commit("addTimerStore", Object.assign(state.defaultParams, {
-        id: _generator.generate(),
-        name: data.name,
-        song: data.song,
-        begin: begin
-      }));
+    ]
+};
+// Получаем сохраненные таймеры
+var StoreTimers = new _StoreSelector__WEBPACK_IMPORTED_MODULE_0__["default"]("local");
+// Получение сохраненных таймеров
+var timers = StoreTimers.get("timers", []);
+// Установка таймера по умолчанию, если нет таймеров
+if (!timers.length) {
+    var generator = new _functions__WEBPACK_IMPORTED_MODULE_1__["IDGenerator"]();
+    timers.push(Object.assign(state.defaultParams, {
+        id: generator.generate(),
+        song: state.songs[0]
+    }));
+    // @TODO - Вынести в commit
+    StoreTimers.set("timers", timers);
+}
+// Установка таймеров в state
+state = Object.assign(state, { timers: timers });
+// getters
+var getters = {
+    // Получить настройки по умолчанию
+    getDefaultParams: function (state) {
+        return state.defaultParams;
+    },
+    // Поиск таймера
+    findTimer: function (state) { return function (id) {
+        return state.timers.find(function (item) { return item.id === id; });
+    }; }
+};
+// actions
+var actions = {
+    // Обновить пройденное время таймера
+    updatePassed: function (_a, timer) {
+        var commit = _a.commit, state = _a.state;
+        var newTimers = state.timers.map(function (item) {
+            if (item.id === timer.id && timer.passed < item.begin) {
+                item.passed = timer.passed + 1;
+            }
+            return item;
+        });
+        commit("updateTimersStore", newTimers);
+    },
+    // Смена состояния активности
+    changeActivity: function (_a, _b) {
+        var commit = _a.commit, state = _a.state;
+        var id = _b.id, isActive = _b.isActive;
+        var newTimers = state.timers.map(function (item) {
+            if (item.id === id) {
+                item.isActive = isActive;
+            }
+            return item;
+        });
+        commit("updateTimersStore", newTimers);
+    },
+    // Сброс пройденного времени
+    resetPassed: function (_a, id) {
+        var commit = _a.commit, state = _a.state;
+        var newTimers = state.timers.map(function (item) {
+            if (item.id === id) {
+                item.passed = 0;
+            }
+            return item;
+        });
+        commit("updateTimersStore", newTimers);
+    },
+    // Удаление таймера
+    removeTimer: function (_a, id) {
+        var commit = _a.commit, state = _a.state;
+        var newTimers = state.timers.filter(function (item) { return item.id !== id; });
+        commit("updateTimersStore", newTimers);
+    },
+    // Сохранение таймера
+    saveTimer: function (_a, data) {
+        var commit = _a.commit, state = _a.state, getters = _a.getters;
+        var begin = Object(_functions__WEBPACK_IMPORTED_MODULE_1__["time2Second"])(data.hour, data.minute, data.second);
+        var timer = getters.findTimer(data.id);
+        if (timer) {
+            var newTimers = state.timers.map(function (item) {
+                if (item.id === data.id) {
+                    item.name = data.name;
+                    item.song = data.song;
+                    item.begin = begin;
+                    item.passed = 0; // Сброс пройденного времени
+                }
+                return item;
+            });
+            commit("updateTimersStore", newTimers);
+        }
+        else {
+            var generator = new _functions__WEBPACK_IMPORTED_MODULE_1__["IDGenerator"]();
+            commit("addTimerStore", Object.assign(state.defaultParams, {
+                id: generator.generate(),
+                name: data.name,
+                song: data.song,
+                begin: begin
+            }));
+        }
     }
-  }
-}; // mutations
-
+};
+// mutations
 var mutations = {
-  // Обновить таймеры
-  updateTimersStore: function updateTimersStore(state, timers) {
-    state.timers = timers;
-    StoreTimers.set("timers", state.timers);
-  },
-  // Добавить таймер
-  addTimerStore: function addTimerStore(state, timer) {
-    state.timers.push(timer);
-    StoreTimers.set("timers", state.timers);
-  }
+    // Обновить таймеры
+    updateTimersStore: function (state, timers) {
+        state.timers = timers;
+        StoreTimers.set("timers", state.timers);
+    },
+    // Добавить таймер
+    addTimerStore: function (state, timer) {
+        state.timers.push(timer);
+        StoreTimers.set("timers", state.timers);
+    }
 };
 /* harmony default export */ __webpack_exports__["default"] = ({
-  namespaced: true,
-  state: state,
-  getters: getters,
-  actions: actions,
-  mutations: mutations
+    namespaced: true,
+    state: state,
+    getters: getters,
+    actions: actions,
+    mutations: mutations
 });
+
 
 /***/ }),
 
-/***/ "./src/js/timeChecker.js":
+/***/ "./src/js/timeChecker.ts":
 /*!*******************************!*\
-  !*** ./src/js/timeChecker.js ***!
+  !*** ./src/js/timeChecker.ts ***!
   \*******************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "default", function() { return _default; });
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
 /**
  * Реакция на определённое время
- * @param {object} cfg объект с настройками
- * {
- *
- * infinity - boolean, true - выполнять бесконечно, false - только один раз
-
-    // если эта функция вернёт true,
-    // проверки сбросятся в исходное состояние
-    // dateOld — объект даты прошлой проверки
-    // dateNew — объект даты текущей проверки
-    updateCheck: function (dateOld, dateNew) {},
-
-    // массив проверок
-    checks: [
-        {
-            // если check вернёт true
-            // сработает action
-            // date — объект текущего времени
-            check: function (date) {},
-            action: function () {}
-        }
-    ]
-}
  */
 // полнейшее клонирование объекта
 // http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
 function clone(obj) {
-  var copy; // Handle the 3 simple types, and null or undefined
-
-  if (obj === null || typeof obj !== "object") {
-    return obj;
-  } // Handle Date
-
-
-  if (obj instanceof Date) {
-    copy = new Date();
-    copy.setTime(obj.getTime());
-    return copy;
-  } // Handle Array
-
-
-  if (obj instanceof Array) {
-    copy = [];
-
-    for (var i = 0, len = obj.length; i < len; i++) {
-      copy[i] = clone(obj[i]);
+    var copy;
+    // Handle the 3 simple types, and null or undefined
+    if (obj === null || typeof obj !== "object") {
+        return obj;
     }
-
-    return copy;
-  } // Handle Object
-
-
-  if (obj instanceof Object) {
-    copy = {};
-
-    for (var attr in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, attr)) {
-        copy[attr] = clone(obj[attr]);
-      }
+    // Handle Date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
     }
-
-    return copy;
-  }
-
-  throw new Error("Unable to copy obj! Its type isn't supported.");
-}
-
-var _default =
-/*#__PURE__*/
-function () {
-  function _default() {
-    var cfg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
-      // Бесконечно выполнять
-      infinity: true,
-      // если эта функция вернёт true, проверки сбросятся в исходное состояние
-      updateCheck: function updateCheck() {
-        return false;
-      },
-      // Массив с проверками
-      checks: []
-    };
-
-    _classCallCheck(this, _default);
-
-    this.config(cfg);
-    this.dateOld = new Date(); // дата предыдущей проверки
-
-    return this;
-  } // получение и установка настроек
-
-
-  _createClass(_default, [{
-    key: "config",
-    value: function config() {
-      var cfg = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-
-      if (cfg) {
-        this.cfg = clone(cfg); // кеш настроек
-
-        this.cfgTmp = clone(cfg); // настройки, с которыми работаем
-      }
-
-      return this.cfg;
-    } // обновление проверок
-
-  }, {
-    key: "update",
-    value: function update() {
-      this.cfgTmp = clone(this.cfg);
-    } // получение даты
-
-  }, {
-    key: "getDate",
-    value: function getDate() {
-      return new Date();
-    }
-  }, {
-    key: "check",
-    value: function check() {
-      if (!this.cfg) {
-        return;
-      }
-
-      var that = this;
-      var date = this.getDate();
-
-      if (this.cfg.updateCheck(this.dateOld, date)) {
-        this.update();
-      }
-
-      this.cfgTmp.checks.forEach(function (item, i) {
-        if (item.check(date)) {
-          item.action(); // Нужно ли выполнять бесконечно
-
-          if (!that.cfg.infinity) {
-            that.cfgTmp.checks.splice(i, 1);
-          }
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
         }
-      });
-      this.dateOld = new Date();
+        return copy;
     }
-  }]);
-
-  return _default;
-}();
-
+    // Handle Object
+    if (obj instanceof Object) {
+        copy = {};
+        for (var attr in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, attr)) {
+                copy[attr] = clone(obj[attr]);
+            }
+        }
+        return copy;
+    }
+    throw new Error("Unable to copy obj! Its type isn't supported.");
+}
+var default_1 = /** @class */ (function () {
+    function default_1(cfg) {
+        if (cfg === void 0) { cfg = {
+            // Бесконечно выполнять
+            infinity: true,
+            // если эта функция вернёт true, проверки сбросятся в исходное состояние
+            updateCheck: function () { return false; },
+            // Массив с проверками
+            checks: []
+        }; }
+        this.cfg = this.cfgTmp = this.config(cfg);
+        this.dateOld = this.getDate(); // дата предыдущей проверки
+    }
+    // получение и установка настроек
+    default_1.prototype.config = function (cfg) {
+        this.cfg = clone(cfg); // кеш настроек
+        this.cfgTmp = clone(cfg); // настройки, с которыми работаем
+        return this.cfg;
+    };
+    // обновление проверок
+    default_1.prototype.update = function () {
+        this.cfgTmp = clone(this.cfg);
+    };
+    // получение даты
+    default_1.prototype.getDate = function () {
+        return new Date();
+    };
+    default_1.prototype.check = function () {
+        var _this = this;
+        if (!this.cfg) {
+            return;
+        }
+        var date = this.getDate();
+        if (this.cfg.updateCheck(this.dateOld, date)) {
+            this.update();
+        }
+        this.cfgTmp.checks.forEach(function (item, i) {
+            if (item.check(date)) {
+                item.action();
+                // Нужно ли выполнять бесконечно
+                if (!_this.cfg.infinity) {
+                    _this.cfgTmp.checks.splice(i, 1);
+                }
+            }
+        });
+        this.dateOld = this.getDate();
+    };
+    return default_1;
+}());
+/* harmony default export */ __webpack_exports__["default"] = (default_1);
 
 
 /***/ }),
 
 /***/ 0:
 /*!**************************************************!*\
-  !*** multi ./src/js/app.js ./src/css/styles.css ***!
+  !*** multi ./src/js/app.ts ./src/css/styles.css ***!
   \**************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-__webpack_require__(/*! E:\var\opt\apache\htdocs\timer-vue\src\js\app.js */"./src/js/app.js");
+__webpack_require__(/*! E:\var\opt\apache\htdocs\timer-vue\src\js\app.ts */"./src/js/app.ts");
 module.exports = __webpack_require__(/*! E:\var\opt\apache\htdocs\timer-vue\src\css\styles.css */"./src/css/styles.css");
 
 

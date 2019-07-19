@@ -1,33 +1,39 @@
 /**
  * Реакция на определённое время
- * @param {object} cfg объект с настройками
- * {
- *
- * infinity - boolean, true - выполнять бесконечно, false - только один раз
+ */
 
-    // если эта функция вернёт true,
-    // проверки сбросятся в исходное состояние
+interface Checks {
+
+    // Id таймера
+    id?: number,
+
+    // если check вернёт true
+    // сработает action
+    // date — объект текущего времени
+    check: (date?: Date) => boolean,
+
+    // Обработчик
+    action: () => void
+}
+
+interface Config {
+
+    // true - выполнять бесконечно, false - только один раз
+    infinity: boolean, 
+
+    // если эта функция вернёт true, проверки сбросятся в исходное состояние
     // dateOld — объект даты прошлой проверки
     // dateNew — объект даты текущей проверки
-    updateCheck: function (dateOld, dateNew) {},
+    updateCheck: (dateOld?: Date, date?: Date) => boolean,
 
     // массив проверок
-    checks: [
-        {
-            // если check вернёт true
-            // сработает action
-            // date — объект текущего времени
-            check: function (date) {},
-            action: function () {}
-        }
-    ]
+    checks: Checks[]
 }
- */
 
 // полнейшее клонирование объекта
 // http://stackoverflow.com/questions/728360/how-do-i-correctly-clone-a-javascript-object
-function clone(obj) {
-    let copy;
+function clone(obj: any): any {
+    let copy: any;
 
     // Handle the 3 simple types, and null or undefined
     if (obj === null || typeof obj !== `object`) {
@@ -38,6 +44,7 @@ function clone(obj) {
     if (obj instanceof Date) {
         copy = new Date();
         copy.setTime(obj.getTime());
+
         return copy;
     }
 
@@ -67,67 +74,65 @@ function clone(obj) {
 }
 
 export default class {
-    constructor(cfg = {
+
+    cfg: Config
+    cfgTmp: Config
+    dateOld: Date
+
+    constructor(cfg: Config = {
         // Бесконечно выполнять
         infinity: true,
 
         // если эта функция вернёт true, проверки сбросятся в исходное состояние
-        updateCheck() {
-            return false;
-        },
+        updateCheck: () => false,
 
         // Массив с проверками
         checks: []
     }) {
-        this.config(cfg);
-        this.dateOld = new Date(); // дата предыдущей проверки
-
-        return this;
+        this.cfg = this.cfgTmp = this.config(cfg);
+        this.dateOld = this.getDate(); // дата предыдущей проверки
     }
 
     // получение и установка настроек
-    config(cfg = null) {
-        if (cfg) {
-            this.cfg = clone(cfg); // кеш настроек
-            this.cfgTmp = clone(cfg); // настройки, с которыми работаем
-        }
+    config(cfg: Config): Config {
+        this.cfg = clone(cfg); // кеш настроек
+        this.cfgTmp = clone(cfg); // настройки, с которыми работаем
 
         return this.cfg;
     }
 
     // обновление проверок
-    update() {
+    update(): void {
         this.cfgTmp = clone(this.cfg);
     }
 
     // получение даты
-    getDate() {
+    getDate(): Date {
         return new Date();
     }
 
-    check() {
+    check(): void {
         if (!this.cfg) {
             return;
         }
 
-        let that = this;
         let date = this.getDate();
 
         if (this.cfg.updateCheck(this.dateOld, date)) {
             this.update();
         }
 
-        this.cfgTmp.checks.forEach(function (item, i) {
+        this.cfgTmp.checks.forEach((item: Checks, i: number) => {
             if (item.check(date)) {
                 item.action();
 
                 // Нужно ли выполнять бесконечно
-                if (!that.cfg.infinity) {
-                    that.cfgTmp.checks.splice(i, 1);
+                if (!this.cfg.infinity) {
+                    this.cfgTmp.checks.splice(i, 1);
                 }
             }
         });
 
-        this.dateOld = new Date();
+        this.dateOld = this.getDate();
     }
 }

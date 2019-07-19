@@ -26,7 +26,7 @@ mix.webpackConfig({
     ],
 });
 
-mix.js('src/js/app.js', 'js')
+mix.ts('src/js/app.ts', 'js')
     .postCss('src/css/styles.css', 'css')
     .setPublicPath('assets');
 

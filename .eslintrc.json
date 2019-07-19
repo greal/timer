@@ -4,8 +4,8 @@
       "sourceType": "module"
     },
     "extends": [
-        "eslint:recommended",
-        "plugin:vue/essential"
+        "eslint:recommended"
+        //"plugin:vue/essential"
     ],
     "rules": {
         "indent": ["error", 4]

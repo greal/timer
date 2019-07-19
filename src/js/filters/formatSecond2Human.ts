@@ -8,7 +8,7 @@ require(`moment-duration-format`);
  * @param {Number} seconds
  * @return {String}
  */
-export function formatSecond2Human(seconds) {
+export function formatSecond2Human(seconds: number): string {
     let duration = moment.duration(seconds, `seconds`);
     return duration.format(`hh:mm:ss`, {trim: false});
 }

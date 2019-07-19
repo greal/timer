@@ -8,7 +8,9 @@
  */
 export default class StoreSelector {
 
-    constructor(type = `local`) {
+    private storage: Storage;
+
+    constructor(type: string = `local`) {
         if (type === `local`) { // localStorage
             this.storage = localStorage;
         } else if (type === `session`) { // sessionStorage
@@ -18,7 +20,6 @@ export default class StoreSelector {
         }
     }
 
-
     /**
      * Подготовка значения
      *
@@ -26,10 +27,9 @@ export default class StoreSelector {
      * @return {String}
      * @memberof StoreSelector
      */
-    _serialize(value) {
+    private _serialize(value: any) {
         return JSON.stringify(value);
     }
-
 
     /**
      * Получение значения
@@ -39,7 +39,7 @@ export default class StoreSelector {
      * @return {*}
      * @memberof StoreSelector
      */
-    _unserialize(value, defaultValue) {
+    private _unserialize(value: any, defaultValue?: any): any {
         if (!value && !!defaultValue) {
             return defaultValue;
         }
@@ -54,7 +54,6 @@ export default class StoreSelector {
         return val !== undefined ? val : defaultValue;
     }
 
-
     /**
      * Чтение
      *
@@ -63,7 +62,7 @@ export default class StoreSelector {
      * @return {*}
      * @memberof StoreSelector
      */
-    get(key, defaultOptionalValue) {
+    get(key: string, defaultOptionalValue?: any): any {
         const value = this.storage.getItem(key);
 
         return this._unserialize(value, defaultOptionalValue);
@@ -78,7 +77,7 @@ export default class StoreSelector {
      * @return {*}
      * @memberof StoreSelector
      */
-    set(key, value) {
+    set(key: string, value: any): any {
         this.storage.setItem(key, this._serialize(value));
 
         return value;
@@ -91,7 +90,7 @@ export default class StoreSelector {
      * @param {String} key
      * @memberof StoreSelector
      */
-    remove(key) {
+    remove(key: string): void {
         this.storage.removeItem(key);
     }
 
@@ -101,7 +100,7 @@ export default class StoreSelector {
      *
      * @memberof StoreSelector
      */
-    clear() {
+    clear(): void {
         this.storage.clear();
     }
 

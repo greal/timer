@@ -8,10 +8,11 @@
     "moment": "^2.24.0",
     "moment-duration-format": "^2.3.2",
     "normalize.css": "^8.0.1",
-    "vue": "^2.6.10",
-    "vuex": "^3.1.1"
+    "vuex": "^3.1.1",
+    "vuex-class": "^0.3.2"
   },
   "devDependencies": {
+    "@types/favico.js": "0.0.28",
     "cross-env": "^5.2.0",
     "eslint": "^6.0.1",
     "eslint-loader": "^2.2.1",
@@ -21,8 +22,11 @@
     "stylelint": "^10.1.0",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^18.3.0",
-    "stylelint-order": "^3.0.1",
     "stylelint-webpack-plugin": "^0.10.5",
+    "ts-loader": "^6.0.4",
+    "typescript": "^3.5.3",
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.1.0",
     "vue-template-compiler": "^2.6.10",
     "webpack-bundle-analyzer": "^3.3.2"
   },

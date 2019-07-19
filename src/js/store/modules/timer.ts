@@ -1,10 +1,12 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "timers", "getters"] }]*/
 
-import StoreSelector from '../../StoreSelector';
-import { IDGenerator, time2Second} from '../../functions';
+import {GetterTree, ActionTree, MutationTree} from 'vuex'
+import {RootState, Timer, SaveData} from '../../types/store'
+import StoreSelector from '../../StoreSelector'
+import {IDGenerator, time2Second} from '../../functions'
 
 // initial state
-let state = {
+let state: RootState = {
 
     // Таймеры
     timers: [],
@@ -78,26 +80,26 @@ if (!timers.length) {
 state = Object.assign(state, {timers});
 
 // getters
-const getters = {
+const getters: GetterTree<RootState, RootState> = {
 
     // Получить настройки по умолчанию
-    getDefaultParams: (state) => {
+    getDefaultParams: (state: RootState) => {
         return state.defaultParams;
     },
 
     // Поиск таймера
-    findTimer: (state) => (id) => {
+    findTimer: (state: RootState) => (id: number) => {
         return state.timers.find((item) => item.id === id);
     }
 
 };
 
 // actions
-const actions = {
+const actions: ActionTree<RootState, RootState> = {
 
     // Обновить пройденное время таймера
-    updatePassed({commit, state}, timer) {
-        let newTimers = state.timers.map((item) => {
+    updatePassed({commit, state}, timer: Timer) {
+        let newTimers = state.timers.map((item: Timer) => {
             if (item.id === timer.id && timer.passed < item.begin) {
                 item.passed = timer.passed + 1;
             }
@@ -110,7 +112,7 @@ const actions = {
 
     // Смена состояния активности
     changeActivity({commit, state}, {id, isActive}) {
-        let newTimers = state.timers.map((item) => {
+        let newTimers = state.timers.map((item: Timer) => {
             if (item.id === id) {
                 item.isActive = isActive;
             }
@@ -121,8 +123,8 @@ const actions = {
     },
 
     // Сброс пройденного времени
-    resetPassed({commit, state}, id) {
-        let newTimers = state.timers.map((item) => {
+    resetPassed({commit, state}, id: number) {
+        let newTimers = state.timers.map((item: Timer) => {
             if (item.id === id) {
                 item.passed = 0;
             }
@@ -133,18 +135,18 @@ const actions = {
     },
 
     // Удаление таймера
-    removeTimer({commit, state}, id) {
-        let newTimers = state.timers.filter((item) => item.id !== id);
+    removeTimer({commit, state}, id: number) {
+        let newTimers = state.timers.filter((item: Timer) => item.id !== id);
 
         commit(`updateTimersStore`, newTimers);
     },
 
     // Сохранение таймера
-    saveTimer({commit, state, getters}, data) {
+    saveTimer({commit, state, getters }, data: SaveData) {
         let begin = time2Second(data.hour, data.minute, data.second);
         let timer = getters.findTimer(data.id);
         if (timer) {
-            let newTimers = state.timers.map((item) => {
+            let newTimers = state.timers.map((item: Timer) => {
                 if (item.id === data.id) {
                     item.name = data.name;
                     item.song = data.song;
@@ -169,17 +171,17 @@ const actions = {
 };
 
 // mutations
-const mutations = {
+const mutations: MutationTree<RootState> = {
 
     // Обновить таймеры
-    updateTimersStore(state, timers) {
+    updateTimersStore(state: RootState, timers: Timer[]) {
         state.timers = timers;
 
         StoreTimers.set(`timers`, state.timers);
     },
 
     // Добавить таймер
-    addTimerStore(state, timer) {
+    addTimerStore(state: RootState, timer: Timer) {
         state.timers.push(timer);
 
         StoreTimers.set(`timers`, state.timers);
