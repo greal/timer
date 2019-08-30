@@ -62,24 +62,17 @@ export class AdjustingInterval {
     private _running: boolean;
     private _expected: number;
     private _timeout: number;
-    public interval: number;
-    public callback: Callback;
-    public errorCallback?: Callback | null = null;
 
     /**
      * Creates an instance of AdjustingInterval.
      * 
      * @param {AdjustingInterval~callback} callback
      * @param {*} interval
-     * @param {AdjustingInterval~errorCallback} [errorCallback=null]
+     * @param {AdjustingInterval~errorCallback} errorCallback
      * @memberof AdjustingInterval
      */
-    constructor(callback: Callback, interval: number, errorCallback?: Callback) {
+    constructor(public callback: Callback, public interval: number, public errorCallback?: Callback) {
         this._running = false;
-        this.interval = interval;
-        this.callback = callback;
-        this.errorCallback = errorCallback;
-
         this._expected = 0;
         this._timeout = 0;
     }
@@ -154,17 +147,13 @@ export function time2Second(hour: number, minute: number, second: number): numbe
  */
 export class TimerSound {
 
-    private path: string;
-
     /**
      * Creates an instance of TimerSound.
 
      * @param {string} [path=``]
      * @memberof TimerSound
      */
-    constructor(path: string = ``) {
-        this.path = path;
-    }
+    constructor(public path: string = ``) {}
 
     /**
      * Запуск аудио
@@ -219,7 +208,7 @@ export class TimerSound {
      * @param {TimerSound~callback} fn
      * @memberof TimerSound
      */
-    stopAll(fn: Callback) {
+    stopAll(fn?: Callback) {
         document.querySelectorAll<HTMLMediaElement>(`audio[id^=sound-]`).forEach((el) => {
             this._stopSong(el);
         });

@@ -4,6 +4,7 @@ import Vue, { CreateElement, VNode } from 'vue';
 import store from './store';
 import {formatSecond2Human} from './filters/formatSecond2Human';
 import Timer from './components/TimerComponent.vue';
+import {EventBus} from './EventBus'
 const Favico = require('favico.js');
 
 Vue.filter('formatSecond2Human', formatSecond2Human);
@@ -39,7 +40,7 @@ const app = new Vue({
     store,
     created() {
         // Уведомление
-        this.$root.$on(`addNotify`, () => {
+        EventBus.$on(`addNotify`, () => {
             faviconBadge++;
             this.handlerNotify();
         });

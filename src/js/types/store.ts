@@ -4,25 +4,25 @@ export interface RootState {
     readonly songs: Sound[]
 }
 
-export interface Timer {
+export interface TimerMain {
     id?: number,
     name: string,
-    song: object | null,
+    song?: Sound
+}
+
+export interface Timer extends TimerMain {
     isActive: boolean,
     begin: number,
     passed: number
 }
 
-export interface Sound {
-    id: number,
-    title: string
-}
-
-export interface SaveData {
-    id: number,
-    name: string,
-    song: object,
+export interface SaveData extends TimerMain {
     hour: number,
     minute: number,
     second: number
+}
+
+export interface Sound {
+    id: number,
+    title: string
 }

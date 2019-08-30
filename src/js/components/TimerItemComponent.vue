@@ -31,101 +31,107 @@
   </div>
 </template>
 
-<script>
-export default {
-    name: `TimerItemComponent`,
+<script lang="ts">
+import {Vue, Component, Prop, Watch, Emit} from 'vue-property-decorator'
+import {EventBus} from '../EventBus'
 
-    props: {
-        timerId: Number
-    },
+@Component
+export default class TimerItemComponent extends Vue {
 
-    computed: {
-        getTimer() {
-            return this.$store.getters[`timer/findTimer`](this.timerId);
-        },
-        getName() {
-            return this.getTimer.name;
-        },
-        getActive() {
-            return this.getTimer.isActive;
-        },
-        getPassed() {
-            return this.getTimer.passed;
-        },
-        getSong() {
-            return this.getTimer.song;
-        },
-        getCounter() {
-            return this.getTimer.begin;
-        },
+    @Prop(Number) readonly timerId!: number
 
-        // Остаток времени
-        timeLeft() {
-            let timeLeft = this.getTimer.begin - this.getTimer.passed;
-            return timeLeft > 0 ? timeLeft : 0;
-        },
+    isPlaySong: boolean = false
 
-        // Подсчет процента выполнения
-        progressValue() {
-            return this.getTimer.passed
-                ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100))
-                : 100;
-        }
-    },
+    created() {
+        // Обнулить состояние если была включена мелодия
+        EventBus.$on(`stopSong`, () => {
+            this.isPlaySong = false;
+        });
+    }
 
-    data: () => ({
-        isPlaySong: false
-    }),
+    get getTimer() {
+        return this.$store.getters[`timer/findTimer`](this.timerId)
+    }
 
-    watch: {
-        timeLeft(value) {
-            if (!value) {
-                // Включить звук уведомление
-                this.playSound();
+    get getName() {
+        return this.getTimer.name;
+    }
 
-                // Favicon и title
-                this.$root.$emit(`addNotify`);
+    get getActive() {
+        return this.getTimer.isActive;
+    }
 
-                // Остановить таймер
-                this.stop();
-            }
-        }
-    },
+    get getPassed() {
+        return this.getTimer.passed;
+    }
 
-    methods: {
-        edit() {
-            this.$root.$emit(`openModal`, this.timerId);
-        },
+    get getSong() {
+        return this.getTimer.song;
+    }
 
-        remove() {
-            if (confirm(`Вы действительно хотите удалить таймер?`)) {
-                this.$root.$emit(`removeTimer`, this.timerId);
-            }
-        },
+    get getCounter() {
+        return this.getTimer.begin;
+    }
 
-        toggle() {
-            this.$root.$emit(`toggleTimer`, this.timerId);
-        },
+    // Остаток времени
+    get timeLeft() {
+        let timeLeft = this.getTimer.begin - this.getTimer.passed;
+        return timeLeft > 0 ? timeLeft : 0;
+    }
 
-        stop() {
-            this.$root.$emit(`stopTimer`, this.timerId);
-        },
+    // Подсчет процента выполнения
+    get progressValue() {
+        return this.getTimer.passed
+            ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100))
+            : 100;
+    }
 
-        reset() {
-            this.$root.$emit(`resetTimer`, this.timerId);
-        },
+    @Watch('timeLeft')
+    onTimeLeftChanged(value: number) {
+        if (!value) {
+            // Включить звук уведомление
+            this.playSound();
 
-        // Управление звуком
-        playSound() {
-            // Признак включенного звука
-            this.isPlaySong ^= true;
+            // Favicon и title
+            EventBus.$emit(`addNotify`);
 
-            // Включить звук уведомления
-            this.$root.$emit(`playSong`, {
-                songId: this.getSong.id,
-                isPlay: this.isPlaySong
-            });
+            // Остановить таймер
+            this.stop();
         }
     }
-};
+
+    edit() {
+        EventBus.$emit(`openModal`, this.timerId);
+    }
+
+    remove() {
+        if (confirm(`Вы действительно хотите удалить таймер?`)) {
+            EventBus.$emit(`removeTimer`, this.timerId);
+        }
+    }
+
+    toggle() {
+        EventBus.$emit(`toggleTimer`, this.timerId);
+    }
+
+    stop() {
+        EventBus.$emit(`stopTimer`, this.timerId);
+    }
+
+    reset() {
+        EventBus.$emit(`resetTimer`, this.timerId);
+    }
+
+    // Управление звуком
+    playSound() {
+        // Признак включенного звука
+        this.isPlaySong = this.isPlaySong !== true;
+
+        // Включить звук уведомления
+        EventBus.$emit(`playSong`, {
+            songId: this.getSong.id,
+            isPlay: this.isPlaySong
+        });
+    }
+}
 </script>

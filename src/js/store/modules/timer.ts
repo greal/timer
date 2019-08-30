@@ -1,7 +1,7 @@
 /* eslint no-shadow: ["error", { "allow": ["state", "timers", "getters"] }]*/
 
 import {GetterTree, ActionTree, MutationTree} from 'vuex'
-import {RootState, Timer, SaveData} from '../../types/store'
+import {RootState, Timer, SaveData, Sound} from '../../types/store'
 import StoreSelector from '../../StoreSelector'
 import {IDGenerator, time2Second} from '../../functions'
 
@@ -14,7 +14,6 @@ let state: RootState = {
     // Параметры по умолчанию
     defaultParams: {
         name: `Таймер №1`,
-        song: null,
         isActive: false,
         begin: 600, // Начальное значение секунд
         passed: 0, // Прошло секунд
@@ -81,6 +80,10 @@ state = Object.assign(state, {timers});
 
 // getters
 const getters: GetterTree<RootState, RootState> = {
+
+    getSongs: (state: RootState): Sound[] => {
+        return state.songs;
+    },
 
     // Получить настройки по умолчанию
     getDefaultParams: (state: RootState) => {

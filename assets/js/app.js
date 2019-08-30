@@ -1,278 +1,5 @@
 (window["webpackJsonp"] = window["webpackJsonp"] || []).push([["/js/app"],{
 
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/ModalComponent.vue?vue&type=script&lang=js&":
-/*!*******************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/ModalComponent.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../functions */ "./src/js/functions.ts");
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "ModalComponent",
-  props: {
-    timerId: Number
-  },
-  created: function created() {
-    if (!this.timerId) {
-      var defaultParams = this.$store.getters["timer/getDefaultParams"];
-      this.hour = 0;
-      this.minute = 10;
-      this.second = 0;
-      this.song = this.songs[0];
-      this.name = defaultParams.name;
-    }
-  },
-  watch: {
-    getTimer: function getTimer(value) {
-      if (value) {
-        var timeFormat = Object(_functions__WEBPACK_IMPORTED_MODULE_1__["timeStr2Array"])(value.begin);
-        this.hour = timeFormat[0];
-        this.minute = timeFormat[1];
-        this.second = timeFormat[2];
-        this.song = value.song ? value.song : this.songs[0];
-        this.name = value.name;
-      } else {
-        this.hour = 0;
-        this.minute = 0;
-        this.second = 0;
-        this.song = this.songs[0];
-        this.name = "";
-      }
-    },
-    song: function song() {
-      this.$root.$emit("stopSong");
-      this.isPlaySong = false;
-    }
-  },
-  computed: _objectSpread({
-    getTimer: function getTimer() {
-      return this.$store.getters["timer/findTimer"](this.timerId);
-    }
-  }, Object(vuex__WEBPACK_IMPORTED_MODULE_0__["mapState"])({
-    songs: function songs(state) {
-      return state.timer.songs;
-    }
-  })),
-  data: function data() {
-    return {
-      name: "",
-      song: null,
-      hour: 0,
-      minute: 0,
-      second: 0,
-      isPlaySong: false
-    };
-  },
-  methods: {
-    saveTimer: function saveTimer() {
-      // @TODO Валидация
-      this.$root.$emit("saveTimer", Object.assign(this.$data, {
-        id: this.timerId
-      }));
-    },
-    closeModal: function closeModal() {
-      this.$root.$emit("closeModal");
-    },
-    // Управление звуком
-    playSound: function playSound() {
-      // Признак включенного звука
-      this.isPlaySong ^= true; // Включить звук уведомления
-
-      this.$root.$emit("playSong", {
-        songId: this.song.id,
-        isPlay: this.isPlaySong
-      });
-    }
-  }
-});
-
-/***/ }),
-
-/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerItemComponent.vue?vue&type=script&lang=js&":
-/*!***********************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/TimerItemComponent.vue?vue&type=script&lang=js& ***!
-  \***********************************************************************************************************************************************************************/
-/*! exports provided: default */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-/* harmony default export */ __webpack_exports__["default"] = ({
-  name: "TimerItemComponent",
-  props: {
-    timerId: Number
-  },
-  computed: {
-    getTimer: function getTimer() {
-      return this.$store.getters["timer/findTimer"](this.timerId);
-    },
-    getName: function getName() {
-      return this.getTimer.name;
-    },
-    getActive: function getActive() {
-      return this.getTimer.isActive;
-    },
-    getPassed: function getPassed() {
-      return this.getTimer.passed;
-    },
-    getSong: function getSong() {
-      return this.getTimer.song;
-    },
-    getCounter: function getCounter() {
-      return this.getTimer.begin;
-    },
-    // Остаток времени
-    timeLeft: function timeLeft() {
-      var timeLeft = this.getTimer.begin - this.getTimer.passed;
-      return timeLeft > 0 ? timeLeft : 0;
-    },
-    // Подсчет процента выполнения
-    progressValue: function progressValue() {
-      return this.getTimer.passed ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100)) : 100;
-    }
-  },
-  data: function data() {
-    return {
-      isPlaySong: false
-    };
-  },
-  watch: {
-    timeLeft: function timeLeft(value) {
-      if (!value) {
-        // Включить звук уведомление
-        this.playSound(); // Favicon и title
-
-        this.$root.$emit("addNotify"); // Остановить таймер
-
-        this.stop();
-      }
-    }
-  },
-  methods: {
-    edit: function edit() {
-      this.$root.$emit("openModal", this.timerId);
-    },
-    remove: function remove() {
-      if (confirm("\u0412\u044B \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u0442\u0430\u0439\u043C\u0435\u0440?")) {
-        this.$root.$emit("removeTimer", this.timerId);
-      }
-    },
-    toggle: function toggle() {
-      this.$root.$emit("toggleTimer", this.timerId);
-    },
-    stop: function stop() {
-      this.$root.$emit("stopTimer", this.timerId);
-    },
-    reset: function reset() {
-      this.$root.$emit("resetTimer", this.timerId);
-    },
-    // Управление звуком
-    playSound: function playSound() {
-      // Признак включенного звука
-      this.isPlaySong ^= true; // Включить звук уведомления
-
-      this.$root.$emit("playSong", {
-        songId: this.getSong.id,
-        isPlay: this.isPlaySong
-      });
-    }
-  }
-});
-
-/***/ }),
-
 /***/ "./node_modules/timers-browserify/main.js":
 /*!************************************************!*\
   !*** ./node_modules/timers-browserify/main.js ***!
@@ -348,22 +75,19 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
-/***/ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts&":
+/***/ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/ModalComponent.vue?vue&type=script&lang=ts&":
 /*!**********************************************************************************************************************************************************!*\
-  !*** ./node_modules/ts-loader??ref--5!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts& ***!
+  !*** ./node_modules/ts-loader??ref--5!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/ModalComponent.vue?vue&type=script&lang=ts& ***!
   \**********************************************************************************************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var vue_class_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-class-component */ "./node_modules/vue-class-component/dist/vue-class-component.esm.js");
-/* harmony import */ var vuex_class__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex-class */ "./node_modules/vuex-class/lib/index.js");
+/* harmony import */ var vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-property-decorator */ "./node_modules/vue-property-decorator/lib/vue-property-decorator.js");
+/* harmony import */ var vuex_class__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex-class */ "./node_modules/vuex-class/lib/index.js");
+/* harmony import */ var _EventBus__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EventBus */ "./src/js/EventBus.ts");
 /* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../functions */ "./src/js/functions.ts");
-/* harmony import */ var _timeChecker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../timeChecker */ "./src/js/timeChecker.ts");
-/* harmony import */ var _ModalComponent_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ModalComponent.vue */ "./src/js/components/ModalComponent.vue");
-/* harmony import */ var _TimerItemComponent_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./TimerItemComponent.vue */ "./src/js/components/TimerItemComponent.vue");
 var __extends = (undefined && undefined.__extends) || (function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf ||
@@ -385,7 +109,139 @@ var __decorate = (undefined && undefined.__decorate) || function (decorators, ta
 };
 
 
-// import {mapState, mapActions} from "vuex";
+
+
+var namespace = 'timer';
+var ModalComponent = /** @class */ (function (_super) {
+    __extends(ModalComponent, _super);
+    function ModalComponent() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.name = "";
+        _this.song = null;
+        _this.hour = 0;
+        _this.minute = 0;
+        _this.second = 0;
+        _this.isPlaySong = false;
+        return _this;
+    }
+    ModalComponent.prototype.created = function () {
+        if (!this.timerId) {
+            this.hour = 0;
+            this.minute = 10;
+            this.second = 0;
+            this.song = this.songs[0];
+            this.name = this.defaultParams.name;
+        }
+    };
+    ModalComponent.prototype.onGetTimerChanged = function (value) {
+        if (value) {
+            var timeFormat = Object(_functions__WEBPACK_IMPORTED_MODULE_3__["timeStr2Array"])(value.begin);
+            this.hour = timeFormat[0];
+            this.minute = timeFormat[1];
+            this.second = timeFormat[2];
+        }
+        else {
+            this.hour = 0;
+            this.minute = 0;
+            this.second = 0;
+            this.song = this.songs[0];
+            this.name = "";
+        }
+    };
+    ModalComponent.prototype.onSongChanged = function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_2__["EventBus"].$emit("stopSong");
+        this.isPlaySong = false;
+    };
+    Object.defineProperty(ModalComponent.prototype, "getTimer", {
+        get: function () {
+            return this.$store.getters["timer/findTimer"](this.timerId);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    ModalComponent.prototype.saveTimer = function () {
+        // @TODO Валидация
+        _EventBus__WEBPACK_IMPORTED_MODULE_2__["EventBus"].$emit("saveTimer", Object.assign(this.$data, {
+            id: this.timerId
+        }));
+    };
+    ModalComponent.prototype.closeModal = function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_2__["EventBus"].$emit("closeModal");
+    };
+    // Управление звуком
+    ModalComponent.prototype.playSound = function () {
+        // Признак включенного звука
+        this.isPlaySong = this.isPlaySong !== true;
+        // Включить звук уведомления
+        _EventBus__WEBPACK_IMPORTED_MODULE_2__["EventBus"].$emit("playSong", {
+            songId: this.song ? this.song.id : this.songs[0].id,
+            isPlay: this.isPlaySong
+        });
+    };
+    __decorate([
+        Object(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Prop"])(Number)
+    ], ModalComponent.prototype, "timerId", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_1__["Getter"])('getSongs', { namespace: namespace })
+    ], ModalComponent.prototype, "songs", void 0);
+    __decorate([
+        Object(vuex_class__WEBPACK_IMPORTED_MODULE_1__["Getter"])('getDefaultParams', { namespace: namespace })
+    ], ModalComponent.prototype, "defaultParams", void 0);
+    __decorate([
+        Object(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Watch"])('getTimer')
+    ], ModalComponent.prototype, "onGetTimerChanged", null);
+    __decorate([
+        Object(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Watch"])('song')
+    ], ModalComponent.prototype, "onSongChanged", null);
+    ModalComponent = __decorate([
+        vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Component"]
+    ], ModalComponent);
+    return ModalComponent;
+}(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Vue"]));
+/* harmony default export */ __webpack_exports__["default"] = (ModalComponent);
+
+
+/***/ }),
+
+/***/ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts&":
+/*!**********************************************************************************************************************************************************!*\
+  !*** ./node_modules/ts-loader??ref--5!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/TimerComponent.vue?vue&type=script&lang=ts& ***!
+  \**********************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony import */ var vue_class_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-class-component */ "./node_modules/vue-class-component/dist/vue-class-component.esm.js");
+/* harmony import */ var vuex_class__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! vuex-class */ "./node_modules/vuex-class/lib/index.js");
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../functions */ "./src/js/functions.ts");
+/* harmony import */ var _timeChecker__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../timeChecker */ "./src/js/timeChecker.ts");
+/* harmony import */ var _ModalComponent_vue__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ModalComponent.vue */ "./src/js/components/ModalComponent.vue");
+/* harmony import */ var _TimerItemComponent_vue__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./TimerItemComponent.vue */ "./src/js/components/TimerItemComponent.vue");
+/* harmony import */ var _EventBus__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../EventBus */ "./src/js/EventBus.ts");
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+
 
 
 
@@ -412,59 +268,59 @@ var TimerComponent = /** @class */ (function (_super) {
         // Запуск общего таймера
         timerInstance.start();
         // Сохранить таймер
-        this.$root.$on("saveTimer", function (data) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("saveTimer", function (data) {
             _this.save(data);
         });
         // Открыть окно
-        this.$root.$on("openModal", function (timerId) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("openModal", function (timerId) {
+            _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$emit("stopSong");
             _this.openModal(timerId);
         });
         // Закрыть окно
-        this.$root.$on("closeModal", function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("closeModal", function () {
             _this.isShowModal = false;
+            _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$emit("stopSong");
         });
         // Прослушать звук
-        this.$root.$on("playSong", function (payload) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("playSong", function (payload) {
             payload.isPlay
                 ? timerSound.play(payload.songId)
                 : timerSound.stop(payload.songId);
         });
         // Отключить звук
-        this.$root.$on("stopSong", function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("stopSong", function () {
             timerSound.stopAll();
         });
         // Вкл./Выкл. таймер
-        this.$root.$on("toggleTimer", function (id) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("toggleTimer", function (id) {
             _this.toggleTimer(id);
             _this.stopSoundTimer(id);
         });
         // Удалить таймер
-        this.$root.$on("removeTimer", function (id) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("removeTimer", function (id) {
             _this.removeStartedTimer(id);
             _this.stopSoundTimer(id);
             _this.removeTimer(id);
         });
         // Сброс таймера
-        this.$root.$on("resetTimer", function (id) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("resetTimer", function (id) {
             _this.timerState(id, false);
             _this.resetPassed(id);
             _this.stopSoundTimer(id);
         });
         // Остановка таймера
-        this.$root.$on("stopTimer", function (id) {
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$on("stopTimer", function (id) {
             _this.timerState(id, false);
         });
         // Если страница была перезагружена
         this.timers
             .filter(function (timer) { return timer.isActive === true; })
             .forEach(function (timer) {
-            _this.timerState(timer.id, true);
+            if (timer.id) {
+                _this.timerState(timer.id, true);
+            }
         });
     };
-    // data: () => ({
-    //     isShowModal: false,
-    //     modalTimerId: null
-    // }),
     // Выключение мелодии
     TimerComponent.prototype.stopSoundTimer = function (id) {
         var timer = this.getTimer(id);
@@ -525,7 +381,7 @@ var TimerComponent = /** @class */ (function (_super) {
     // Сохранение таймера
     TimerComponent.prototype.save = function (data) {
         this.saveTimer(data);
-        this.$root.$emit("closeModal");
+        _EventBus__WEBPACK_IMPORTED_MODULE_7__["EventBus"].$emit("closeModal");
     };
     __decorate([
         Object(vuex_class__WEBPACK_IMPORTED_MODULE_2__["State"])('timers', { namespace: namespace })
@@ -547,7 +403,6 @@ var TimerComponent = /** @class */ (function (_super) {
     ], TimerComponent.prototype, "removeTimer", void 0);
     TimerComponent = __decorate([
         Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["default"])({
-            name: "TimerComponent",
             components: {
                 TimerItem: _TimerItemComponent_vue__WEBPACK_IMPORTED_MODULE_6__["default"],
                 Modal: _ModalComponent_vue__WEBPACK_IMPORTED_MODULE_5__["default"]
@@ -557,7 +412,166 @@ var TimerComponent = /** @class */ (function (_super) {
     return TimerComponent;
 }(vue__WEBPACK_IMPORTED_MODULE_0__["default"]));
 /* harmony default export */ __webpack_exports__["default"] = (TimerComponent);
-;
+
+
+/***/ }),
+
+/***/ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerItemComponent.vue?vue&type=script&lang=ts&":
+/*!**************************************************************************************************************************************************************!*\
+  !*** ./node_modules/ts-loader??ref--5!./node_modules/vue-loader/lib??vue-loader-options!./src/js/components/TimerItemComponent.vue?vue&type=script&lang=ts& ***!
+  \**************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue-property-decorator */ "./node_modules/vue-property-decorator/lib/vue-property-decorator.js");
+/* harmony import */ var _EventBus__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EventBus */ "./src/js/EventBus.ts");
+var __extends = (undefined && undefined.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+
+
+var TimerItemComponent = /** @class */ (function (_super) {
+    __extends(TimerItemComponent, _super);
+    function TimerItemComponent() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.isPlaySong = false;
+        return _this;
+    }
+    TimerItemComponent.prototype.created = function () {
+        var _this = this;
+        // Обнулить состояние если была включена мелодия
+        _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$on("stopSong", function () {
+            _this.isPlaySong = false;
+        });
+    };
+    Object.defineProperty(TimerItemComponent.prototype, "getTimer", {
+        get: function () {
+            return this.$store.getters["timer/findTimer"](this.timerId);
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "getName", {
+        get: function () {
+            return this.getTimer.name;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "getActive", {
+        get: function () {
+            return this.getTimer.isActive;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "getPassed", {
+        get: function () {
+            return this.getTimer.passed;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "getSong", {
+        get: function () {
+            return this.getTimer.song;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "getCounter", {
+        get: function () {
+            return this.getTimer.begin;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "timeLeft", {
+        // Остаток времени
+        get: function () {
+            var timeLeft = this.getTimer.begin - this.getTimer.passed;
+            return timeLeft > 0 ? timeLeft : 0;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(TimerItemComponent.prototype, "progressValue", {
+        // Подсчет процента выполнения
+        get: function () {
+            return this.getTimer.passed
+                ? 100 - Math.floor(this.getTimer.passed / (this.getTimer.begin / 100))
+                : 100;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    TimerItemComponent.prototype.onTimeLeftChanged = function (value) {
+        if (!value) {
+            // Включить звук уведомление
+            this.playSound();
+            // Favicon и title
+            _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("addNotify");
+            // Остановить таймер
+            this.stop();
+        }
+    };
+    TimerItemComponent.prototype.edit = function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("openModal", this.timerId);
+    };
+    TimerItemComponent.prototype.remove = function () {
+        if (confirm("\u0412\u044B \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0445\u043E\u0442\u0438\u0442\u0435 \u0443\u0434\u0430\u043B\u0438\u0442\u044C \u0442\u0430\u0439\u043C\u0435\u0440?")) {
+            _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("removeTimer", this.timerId);
+        }
+    };
+    TimerItemComponent.prototype.toggle = function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("toggleTimer", this.timerId);
+    };
+    TimerItemComponent.prototype.stop = function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("stopTimer", this.timerId);
+    };
+    TimerItemComponent.prototype.reset = function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("resetTimer", this.timerId);
+    };
+    // Управление звуком
+    TimerItemComponent.prototype.playSound = function () {
+        // Признак включенного звука
+        this.isPlaySong = this.isPlaySong !== true;
+        // Включить звук уведомления
+        _EventBus__WEBPACK_IMPORTED_MODULE_1__["EventBus"].$emit("playSong", {
+            songId: this.getSong.id,
+            isPlay: this.isPlaySong
+        });
+    };
+    __decorate([
+        Object(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Prop"])(Number)
+    ], TimerItemComponent.prototype, "timerId", void 0);
+    __decorate([
+        Object(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Watch"])('timeLeft')
+    ], TimerItemComponent.prototype, "onTimeLeftChanged", null);
+    TimerItemComponent = __decorate([
+        vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Component"]
+    ], TimerItemComponent);
+    return TimerItemComponent;
+}(vue_property_decorator__WEBPACK_IMPORTED_MODULE_0__["Vue"]));
+/* harmony default export */ __webpack_exports__["default"] = (TimerItemComponent);
 
 
 /***/ }),
@@ -1474,6 +1488,284 @@ function normalizeComponent (
 
 /***/ }),
 
+/***/ "./node_modules/vue-property-decorator/lib/vue-property-decorator.js":
+/*!***************************************************************************!*\
+  !*** ./node_modules/vue-property-decorator/lib/vue-property-decorator.js ***!
+  \***************************************************************************/
+/*! exports provided: Component, Vue, Mixins, Inject, InjectReactive, Provide, ProvideReactive, Model, Prop, PropSync, Watch, Emit, Ref */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Inject", function() { return Inject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InjectReactive", function() { return InjectReactive; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Provide", function() { return Provide; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ProvideReactive", function() { return ProvideReactive; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Model", function() { return Model; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Prop", function() { return Prop; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "PropSync", function() { return PropSync; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Watch", function() { return Watch; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Emit", function() { return Emit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Ref", function() { return Ref; });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Vue", function() { return vue__WEBPACK_IMPORTED_MODULE_0__["default"]; });
+
+/* harmony import */ var vue_class_component__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vue-class-component */ "./node_modules/vue-class-component/dist/vue-class-component.esm.js");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Component", function() { return vue_class_component__WEBPACK_IMPORTED_MODULE_1__["default"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "Mixins", function() { return vue_class_component__WEBPACK_IMPORTED_MODULE_1__["mixins"]; });
+
+/** vue-property-decorator verson 8.2.1 MIT LICENSE copyright 2019 kaorun343 */
+/// <reference types='reflect-metadata'/>
+
+
+
+
+/** Used for keying reactive provide/inject properties */
+var reactiveInjectKey = '__reactiveInject__';
+/**
+ * decorator of an inject
+ * @param from key
+ * @return PropertyDecorator
+ */
+function Inject(options) {
+    return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, key) {
+        if (typeof componentOptions.inject === 'undefined') {
+            componentOptions.inject = {};
+        }
+        if (!Array.isArray(componentOptions.inject)) {
+            componentOptions.inject[key] = options || key;
+        }
+    });
+}
+/**
+ * decorator of a reactive inject
+ * @param from key
+ * @return PropertyDecorator
+ */
+function InjectReactive(options) {
+    return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, key) {
+        if (typeof componentOptions.inject === 'undefined') {
+            componentOptions.inject = {};
+        }
+        if (!Array.isArray(componentOptions.inject)) {
+            var fromKey_1 = !!options ? options.from || options : key;
+            var defaultVal_1 = (!!options && options.default) || undefined;
+            if (!componentOptions.computed)
+                componentOptions.computed = {};
+            componentOptions.computed[key] = function () {
+                var obj = this[reactiveInjectKey];
+                return obj ? obj[fromKey_1] : defaultVal_1;
+            };
+            componentOptions.inject[reactiveInjectKey] = reactiveInjectKey;
+        }
+    });
+}
+/**
+ * decorator of a provide
+ * @param key key
+ * @return PropertyDecorator | void
+ */
+function Provide(key) {
+    return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, k) {
+        var provide = componentOptions.provide;
+        if (typeof provide !== 'function' || !provide.managed) {
+            var original_1 = componentOptions.provide;
+            provide = componentOptions.provide = function () {
+                var rv = Object.create((typeof original_1 === 'function' ? original_1.call(this) : original_1) ||
+                    null);
+                for (var i in provide.managed)
+                    rv[provide.managed[i]] = this[i];
+                return rv;
+            };
+            provide.managed = {};
+        }
+        provide.managed[k] = key || k;
+    });
+}
+/**
+ * decorator of a reactive provide
+ * @param key key
+ * @return PropertyDecorator | void
+ */
+function ProvideReactive(key) {
+    return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, k) {
+        var provide = componentOptions.provide;
+        if (typeof provide !== 'function' || !provide.managed) {
+            var original_2 = componentOptions.provide;
+            provide = componentOptions.provide = function () {
+                var _this = this;
+                var rv = Object.create((typeof original_2 === 'function' ? original_2.call(this) : original_2) ||
+                    null);
+                rv[reactiveInjectKey] = {};
+                var _loop_1 = function (i) {
+                    rv[provide.managed[i]] = this_1[i]; // Duplicates the behavior of `@Provide`
+                    Object.defineProperty(rv[reactiveInjectKey], provide.managed[i], {
+                        enumerable: true,
+                        get: function () { return _this[i]; },
+                    });
+                };
+                var this_1 = this;
+                for (var i in provide.managed) {
+                    _loop_1(i);
+                }
+                return rv;
+            };
+            provide.managed = {};
+        }
+        provide.managed[k] = key || k;
+    });
+}
+/** @see {@link https://github.com/vuejs/vue-class-component/blob/master/src/reflect.ts} */
+var reflectMetadataIsSupported = typeof Reflect !== 'undefined' && typeof Reflect.getMetadata !== 'undefined';
+function applyMetadata(options, target, key) {
+    if (reflectMetadataIsSupported) {
+        if (!Array.isArray(options) &&
+            typeof options !== 'function' &&
+            typeof options.type === 'undefined') {
+            options.type = Reflect.getMetadata('design:type', target, key);
+        }
+    }
+}
+/**
+ * decorator of model
+ * @param  event event name
+ * @param options options
+ * @return PropertyDecorator
+ */
+function Model(event, options) {
+    if (options === void 0) { options = {}; }
+    return function (target, key) {
+        applyMetadata(options, target, key);
+        Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, k) {
+            ;
+            (componentOptions.props || (componentOptions.props = {}))[k] = options;
+            componentOptions.model = { prop: k, event: event || k };
+        })(target, key);
+    };
+}
+/**
+ * decorator of a prop
+ * @param  options the options for the prop
+ * @return PropertyDecorator | void
+ */
+function Prop(options) {
+    if (options === void 0) { options = {}; }
+    return function (target, key) {
+        applyMetadata(options, target, key);
+        Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, k) {
+            ;
+            (componentOptions.props || (componentOptions.props = {}))[k] = options;
+        })(target, key);
+    };
+}
+/**
+ * decorator of a synced prop
+ * @param propName the name to interface with from outside, must be different from decorated property
+ * @param options the options for the synced prop
+ * @return PropertyDecorator | void
+ */
+function PropSync(propName, options) {
+    if (options === void 0) { options = {}; }
+    // @ts-ignore
+    return function (target, key) {
+        applyMetadata(options, target, key);
+        Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, k) {
+            ;
+            (componentOptions.props || (componentOptions.props = {}))[propName] = options;
+            (componentOptions.computed || (componentOptions.computed = {}))[k] = {
+                get: function () {
+                    return this[propName];
+                },
+                set: function (value) {
+                    // @ts-ignore
+                    this.$emit("update:" + propName, value);
+                },
+            };
+        })(target, key);
+    };
+}
+/**
+ * decorator of a watch function
+ * @param  path the path or the expression to observe
+ * @param  WatchOption
+ * @return MethodDecorator
+ */
+function Watch(path, options) {
+    if (options === void 0) { options = {}; }
+    var _a = options.deep, deep = _a === void 0 ? false : _a, _b = options.immediate, immediate = _b === void 0 ? false : _b;
+    return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (componentOptions, handler) {
+        if (typeof componentOptions.watch !== 'object') {
+            componentOptions.watch = Object.create(null);
+        }
+        var watch = componentOptions.watch;
+        if (typeof watch[path] === 'object' && !Array.isArray(watch[path])) {
+            watch[path] = [watch[path]];
+        }
+        else if (typeof watch[path] === 'undefined') {
+            watch[path] = [];
+        }
+        watch[path].push({ handler: handler, deep: deep, immediate: immediate });
+    });
+}
+// Code copied from Vue/src/shared/util.js
+var hyphenateRE = /\B([A-Z])/g;
+var hyphenate = function (str) { return str.replace(hyphenateRE, '-$1').toLowerCase(); };
+/**
+ * decorator of an event-emitter function
+ * @param  event The name of the event
+ * @return MethodDecorator
+ */
+function Emit(event) {
+    return function (_target, key, descriptor) {
+        key = hyphenate(key);
+        var original = descriptor.value;
+        descriptor.value = function emitter() {
+            var _this = this;
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            var emit = function (returnValue) {
+                if (returnValue !== undefined)
+                    args.unshift(returnValue);
+                _this.$emit.apply(_this, [event || key].concat(args));
+            };
+            var returnValue = original.apply(this, args);
+            if (isPromise(returnValue)) {
+                returnValue.then(function (returnValue) {
+                    emit(returnValue);
+                });
+            }
+            else {
+                emit(returnValue);
+            }
+            return returnValue;
+        };
+    };
+}
+/**
+ * decorator of a ref prop
+ * @param refKey the ref key defined in template
+ */
+function Ref(refKey) {
+    return Object(vue_class_component__WEBPACK_IMPORTED_MODULE_1__["createDecorator"])(function (options, key) {
+        options.computed = options.computed || {};
+        options.computed[key] = {
+            cache: false,
+            get: function () {
+                return this.$refs[refKey || key];
+            },
+        };
+    });
+}
+function isPromise(obj) {
+    return obj instanceof Promise || (obj && typeof obj.then === 'function');
+}
+
+
+/***/ }),
+
 /***/ "./node_modules/vuex-class/lib/bindings.js":
 /*!*************************************************!*\
   !*** ./node_modules/vuex-class/lib/bindings.js ***!
@@ -1669,6 +1961,23 @@ module.exports = function(module) {
 
 /***/ }),
 
+/***/ "./src/js/EventBus.ts":
+/*!****************************!*\
+  !*** ./src/js/EventBus.ts ***!
+  \****************************/
+/*! exports provided: EventBus */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EventBus", function() { return EventBus; });
+/* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
+
+var EventBus = new vue__WEBPACK_IMPORTED_MODULE_0__["default"]();
+
+
+/***/ }),
+
 /***/ "./src/js/StoreSelector.ts":
 /*!*********************************!*\
   !*** ./src/js/StoreSelector.ts ***!
@@ -1787,10 +2096,12 @@ var StoreSelector = /** @class */ (function () {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
-/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./store */ "./src/js/store/index.js");
+/* harmony import */ var _store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./store */ "./src/js/store/index.ts");
 /* harmony import */ var _filters_formatSecond2Human__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./filters/formatSecond2Human */ "./src/js/filters/formatSecond2Human.ts");
 /* harmony import */ var _components_TimerComponent_vue__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./components/TimerComponent.vue */ "./src/js/components/TimerComponent.vue");
+/* harmony import */ var _EventBus__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EventBus */ "./src/js/EventBus.ts");
 /* eslint no-console: ["error", {allow: ["log"]}]*/
+
 
 
 
@@ -1822,7 +2133,7 @@ var app = new vue__WEBPACK_IMPORTED_MODULE_0__["default"]({
     created: function () {
         var _this = this;
         // Уведомление
-        this.$root.$on("addNotify", function () {
+        _EventBus__WEBPACK_IMPORTED_MODULE_4__["EventBus"].$on("addNotify", function () {
             faviconBadge++;
             _this.handlerNotify();
         });
@@ -1870,7 +2181,7 @@ app.$mount("#app");
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ModalComponent_vue_vue_type_template_id_054686c8___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModalComponent.vue?vue&type=template&id=054686c8& */ "./src/js/components/ModalComponent.vue?vue&type=template&id=054686c8&");
-/* harmony import */ var _ModalComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalComponent.vue?vue&type=script&lang=js& */ "./src/js/components/ModalComponent.vue?vue&type=script&lang=js&");
+/* harmony import */ var _ModalComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModalComponent.vue?vue&type=script&lang=ts& */ "./src/js/components/ModalComponent.vue?vue&type=script&lang=ts&");
 /* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -1880,7 +2191,7 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _ModalComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _ModalComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_1__["default"],
   _ModalComponent_vue_vue_type_template_id_054686c8___WEBPACK_IMPORTED_MODULE_0__["render"],
   _ModalComponent_vue_vue_type_template_id_054686c8___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
@@ -1897,17 +2208,17 @@ component.options.__file = "src/js/components/ModalComponent.vue"
 
 /***/ }),
 
-/***/ "./src/js/components/ModalComponent.vue?vue&type=script&lang=js&":
+/***/ "./src/js/components/ModalComponent.vue?vue&type=script&lang=ts&":
 /*!***********************************************************************!*\
-  !*** ./src/js/components/ModalComponent.vue?vue&type=script&lang=js& ***!
+  !*** ./src/js/components/ModalComponent.vue?vue&type=script&lang=ts& ***!
   \***********************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./ModalComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/ModalComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_ts_loader_index_js_ref_5_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/ts-loader??ref--5!../../../node_modules/vue-loader/lib??vue-loader-options!./ModalComponent.vue?vue&type=script&lang=ts& */ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/ModalComponent.vue?vue&type=script&lang=ts&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_ts_loader_index_js_ref_5_node_modules_vue_loader_lib_index_js_vue_loader_options_ModalComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
@@ -2008,7 +2319,7 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TimerItemComponent_vue_vue_type_template_id_c216399e___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TimerItemComponent.vue?vue&type=template&id=c216399e& */ "./src/js/components/TimerItemComponent.vue?vue&type=template&id=c216399e&");
-/* harmony import */ var _TimerItemComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TimerItemComponent.vue?vue&type=script&lang=js& */ "./src/js/components/TimerItemComponent.vue?vue&type=script&lang=js&");
+/* harmony import */ var _TimerItemComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TimerItemComponent.vue?vue&type=script&lang=ts& */ "./src/js/components/TimerItemComponent.vue?vue&type=script&lang=ts&");
 /* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
@@ -2018,7 +2329,7 @@ __webpack_require__.r(__webpack_exports__);
 /* normalize component */
 
 var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
-  _TimerItemComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _TimerItemComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_1__["default"],
   _TimerItemComponent_vue_vue_type_template_id_c216399e___WEBPACK_IMPORTED_MODULE_0__["render"],
   _TimerItemComponent_vue_vue_type_template_id_c216399e___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
   false,
@@ -2035,17 +2346,17 @@ component.options.__file = "src/js/components/TimerItemComponent.vue"
 
 /***/ }),
 
-/***/ "./src/js/components/TimerItemComponent.vue?vue&type=script&lang=js&":
+/***/ "./src/js/components/TimerItemComponent.vue?vue&type=script&lang=ts&":
 /*!***************************************************************************!*\
-  !*** ./src/js/components/TimerItemComponent.vue?vue&type=script&lang=js& ***!
+  !*** ./src/js/components/TimerItemComponent.vue?vue&type=script&lang=ts& ***!
   \***************************************************************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerItemComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./TimerItemComponent.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerItemComponent.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerItemComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+/* harmony import */ var _node_modules_ts_loader_index_js_ref_5_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerItemComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/ts-loader??ref--5!../../../node_modules/vue-loader/lib??vue-loader-options!./TimerItemComponent.vue?vue&type=script&lang=ts& */ "./node_modules/ts-loader/index.js?!./node_modules/vue-loader/lib/index.js?!./src/js/components/TimerItemComponent.vue?vue&type=script&lang=ts&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_ts_loader_index_js_ref_5_node_modules_vue_loader_lib_index_js_vue_loader_options_TimerItemComponent_vue_vue_type_script_lang_ts___WEBPACK_IMPORTED_MODULE_0__["default"]); 
 
 /***/ }),
 
@@ -2164,15 +2475,14 @@ var AdjustingInterval = /** @class */ (function () {
      *
      * @param {AdjustingInterval~callback} callback
      * @param {*} interval
-     * @param {AdjustingInterval~errorCallback} [errorCallback=null]
+     * @param {AdjustingInterval~errorCallback} errorCallback
      * @memberof AdjustingInterval
      */
     function AdjustingInterval(callback, interval, errorCallback) {
-        this.errorCallback = null;
-        this._running = false;
-        this.interval = interval;
         this.callback = callback;
+        this.interval = interval;
         this.errorCallback = errorCallback;
+        this._running = false;
         this._expected = 0;
         this._timeout = 0;
     }
@@ -2320,9 +2630,9 @@ var TimerSound = /** @class */ (function () {
 
 /***/ }),
 
-/***/ "./src/js/store/index.js":
+/***/ "./src/js/store/index.ts":
 /*!*******************************!*\
-  !*** ./src/js/store/index.js ***!
+  !*** ./src/js/store/index.ts ***!
   \*******************************/
 /*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -2332,16 +2642,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var vue__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js");
 /* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm.js");
 /* harmony import */ var _modules_timer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/timer */ "./src/js/store/modules/timer.ts");
- // import 'es6-promise/auto';
 
+// import 'es6-promise/auto'
 
 
 vue__WEBPACK_IMPORTED_MODULE_0__["default"].use(vuex__WEBPACK_IMPORTED_MODULE_1__["default"]);
 /* harmony default export */ __webpack_exports__["default"] = (new vuex__WEBPACK_IMPORTED_MODULE_1__["default"].Store({
-  modules: {
-    timer: _modules_timer__WEBPACK_IMPORTED_MODULE_2__["default"]
-  }
+    modules: {
+        timer: _modules_timer__WEBPACK_IMPORTED_MODULE_2__["default"]
+    },
 }));
+
 
 /***/ }),
 
@@ -2366,7 +2677,6 @@ var state = {
     // Параметры по умолчанию
     defaultParams: {
         name: "\u0422\u0430\u0439\u043C\u0435\u0440 \u21161",
-        song: null,
         isActive: false,
         begin: 600,
         passed: 0,
@@ -2424,6 +2734,9 @@ if (!timers.length) {
 state = Object.assign(state, { timers: timers });
 // getters
 var getters = {
+    getSongs: function (state) {
+        return state.songs;
+    },
     // Получить настройки по умолчанию
     getDefaultParams: function (state) {
         return state.defaultParams;

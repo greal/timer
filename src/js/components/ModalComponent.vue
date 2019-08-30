@@ -47,96 +47,86 @@
   </transition>
 </template>
 
-<script>
-import {mapState} from "vuex";
-import {timeStr2Array} from "../functions";
+<script lang="ts">
+import {Vue, Component, Prop, Watch, Emit} from 'vue-property-decorator'
+import {Getter} from 'vuex-class'
+import {EventBus} from '../EventBus'
+import {Timer, Sound} from '../types/store'
+import {timeStr2Array} from "../functions"
 
-export default {
-    name: `ModalComponent`,
+const namespace = 'timer'
 
-    props: {
-        timerId: Number
-    },
+@Component
+export default class ModalComponent extends Vue {
+    @Prop(Number) readonly timerId!: number
+    @Getter('getSongs', {namespace}) readonly songs!: Sound[]
+    @Getter('getDefaultParams', {namespace}) readonly defaultParams!: Timer
+
+    name: string = ``
+    song: Sound | null = null
+    hour: number = 0
+    minute: number = 0
+    second: number = 0
+    isPlaySong: boolean = false
 
     created() {
         if (!this.timerId) {
-            let defaultParams = this.$store.getters[`timer/getDefaultParams`];
             this.hour = 0;
             this.minute = 10;
             this.second = 0;
             this.song = this.songs[0];
-            this.name = defaultParams.name;
-        }
-    },
-
-    watch: {
-        getTimer(value) {
-            if (value) {
-                const timeFormat = timeStr2Array(value.begin);
-                this.hour = timeFormat[0];
-                this.minute = timeFormat[1];
-                this.second = timeFormat[2];
-                this.song = value.song ? value.song : this.songs[0];
-                this.name = value.name;
-            } else {
-                this.hour = 0;
-                this.minute = 0;
-                this.second = 0;
-                this.song = this.songs[0];
-                this.name = ``;
-            }
-        },
-        song() {
-            this.$root.$emit(`stopSong`);
-            this.isPlaySong = false;
-        }
-    },
-
-    computed: {
-        getTimer() {
-            return this.$store.getters[`timer/findTimer`](this.timerId);
-        },
-        ...mapState({
-            songs: state => state.timer.songs
-        })
-    },
-
-    data: () => ({
-        name: ``,
-        song: null,
-        hour: 0,
-        minute: 0,
-        second: 0,
-        isPlaySong: false
-    }),
-
-    methods: {
-        saveTimer() {
-
-            // @TODO Валидация
-
-            this.$root.$emit(`saveTimer`, 
-                Object.assign(this.$data, {
-                    id: this.timerId
-                })
-            );
-        },
-
-        closeModal() {
-            this.$root.$emit(`closeModal`);
-        },
-
-        // Управление звуком
-        playSound() {
-            // Признак включенного звука
-            this.isPlaySong ^= true;
-
-            // Включить звук уведомления
-            this.$root.$emit(`playSong`, {
-                songId: this.song.id,
-                isPlay: this.isPlaySong
-            });
+            this.name = this.defaultParams.name;
         }
     }
-};
+
+    @Watch('getTimer')
+    onGetTimerChanged(value: Timer) {
+        if (value) {
+            const timeFormat = timeStr2Array(value.begin);
+            this.hour = timeFormat[0];
+            this.minute = timeFormat[1];
+            this.second = timeFormat[2];
+        } else {
+            this.hour = 0;
+            this.minute = 0;
+            this.second = 0;
+            this.song = this.songs[0];
+            this.name = ``;
+        }
+    }
+
+    @Watch('song')
+    onSongChanged() {
+        EventBus.$emit(`stopSong`);
+        this.isPlaySong = false;
+    }
+
+    get getTimer() {
+        return this.$store.getters[`timer/findTimer`](this.timerId)
+    }
+
+    saveTimer() {
+        // @TODO Валидация
+
+        EventBus.$emit(`saveTimer`, Object.assign(this.$data, {
+            id: this.timerId
+        }))
+    }
+
+    closeModal() {
+        EventBus.$emit(`closeModal`)
+    }
+
+    // Управление звуком
+    playSound() {
+        // Признак включенного звука
+        this.isPlaySong = this.isPlaySong !== true;
+
+        // Включить звук уведомления
+        EventBus.$emit(`playSong`, {
+            songId: this.song ? this.song.id : this.songs[0].id,
+            isPlay: this.isPlaySong
+        })
+    }
+}
 </script>

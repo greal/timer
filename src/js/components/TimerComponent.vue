@@ -18,14 +18,16 @@
 <script lang="ts">
 import Vue from 'vue'
 import Component from 'vue-class-component'
-// import {mapState, mapActions} from "vuex";
-import {State, Action} from 'vuex-class';
-import {RootState, Timer} from '../types/store'
+import {State, Action} from 'vuex-class'
+import {PlaySound} from '../types/custom'
+import {RootState, Timer, SaveData} from '../types/store'
 import {AdjustingInterval, TimerSound} from '../functions'
 import timeChecker from "../timeChecker"
 import Modal from './ModalComponent.vue'
 import TimerItem from './TimerItemComponent.vue'
-const namespace: string = 'timer'
+import {EventBus} from '../EventBus'
+
+const namespace = 'timer'
 
 const timeCheck = new timeChecker();
 const timerInstance = new AdjustingInterval(() => {
@@ -37,7 +39,6 @@ const timerInstance = new AdjustingInterval(() => {
 const timerSound = new TimerSound('../audio/');
 
 @Component({
-    name: "TimerComponent",
     components: {
         TimerItem,
         Modal
@@ -45,159 +46,158 @@ const timerSound = new TimerSound('../audio/');
 })
 export default class TimerComponent extends Vue {
 
-    @State('timers', {namespace}) timers
-    @Action('changeActivity', {namespace}) changeActivity
-    @Action('resetPassed', {namespace}) resetPassed
-    @Action('updatePassed', {namespace}) updatePassed
-    @Action('saveTimer', {namespace}) saveTimer
-    @Action('removeTimer', {namespace}) removeTimer
+    @State('timers', {namespace}) timers!: Timer[]
+    @Action('changeActivity', {namespace}) changeActivity!: any
+    @Action('resetPassed', {namespace}) resetPassed!: any
+    @Action('updatePassed', {namespace}) updatePassed!: any
+    @Action('saveTimer', {namespace}) saveTimer!: any
+    @Action('removeTimer', {namespace}) removeTimer!: any
 
-    isShowModal = false
-    modalTimerId = null
+    isShowModal: boolean = false
+    modalTimerId: number | null = null
 
     created() {
         // Запуск общего таймера
         timerInstance.start();
 
         // Сохранить таймер
-        this.$root.$on(`saveTimer`, (data) => {
+        EventBus.$on(`saveTimer`, (data: SaveData) => {
             this.save(data);
         });
 
         // Открыть окно
-        this.$root.$on(`openModal`, (timerId: number) => {
+        EventBus.$on(`openModal`, (timerId: number) => {
+            EventBus.$emit(`stopSong`);
             this.openModal(timerId);
         });
 
         // Закрыть окно
-        this.$root.$on(`closeModal`, () => {
+        EventBus.$on(`closeModal`, () => {
             this.isShowModal = false;
+            EventBus.$emit(`stopSong`);
         });
 
         // Прослушать звук
-        this.$root.$on(`playSong`, (payload) => {
+        EventBus.$on(`playSong`, (payload: PlaySound) => {
             payload.isPlay 
                 ? timerSound.play(payload.songId)
                 : timerSound.stop(payload.songId);
         });
 
         // Отключить звук
-        this.$root.$on(`stopSong`, () => {
+        EventBus.$on(`stopSong`, () => {
             timerSound.stopAll();
         });
 
         // Вкл./Выкл. таймер
-        this.$root.$on(`toggleTimer`, (id: number) => {
+        EventBus.$on(`toggleTimer`, (id: number) => {
             this.toggleTimer(id);
             this.stopSoundTimer(id);
         });
 
         // Удалить таймер
-        this.$root.$on(`removeTimer`, (id: number) => {
+        EventBus.$on(`removeTimer`, (id: number) => {
             this.removeStartedTimer(id);
             this.stopSoundTimer(id);
             this.removeTimer(id);
         });
 
         // Сброс таймера
-        this.$root.$on(`resetTimer`, (id: number) => {
+        EventBus.$on(`resetTimer`, (id: number) => {
             this.timerState(id, false);
             this.resetPassed(id);
             this.stopSoundTimer(id);
         });
 
         // Остановка таймера
-        this.$root.$on(`stopTimer`, (id: number) => {
+        EventBus.$on(`stopTimer`, (id: number) => {
             this.timerState(id, false);
         });
 
         // Если страница была перезагружена
         this.timers
             .filter((timer: Timer) => timer.isActive === true)
-            .forEach((timer: Timer) => {
-                this.timerState(timer.id, true);
-            });
-    }   
-
-    // data: () => ({
-    //     isShowModal: false,
-    //     modalTimerId: null
-    // }),
-    
-    // Выключение мелодии
-        stopSoundTimer(id: number) {
-            let timer = this.getTimer(id);
-            timerSound.stop(timer.song.id);
-        }
-
-        // Поиск запущенного таймера
-        issetStartedTimer(id: number) {
-            return timeCheck.cfg.checks.findIndex((item: Timer) => item.id === id) !== -1;
-        }
-
-        // Процесс выполнения таймера
-        timerProcess(id: number) {
-            // Обновить пройденное время таймера
-            this.updatePassed(this.getTimer(id));
-        }
-
-        // Получить данные таймера
-        getTimer(id: number) {
-            return this.$store.getters[`timer/findTimer`](id);
-        }
-
-        // Добавить таймер
-        startTimer(id: number) {
-            timeCheck.cfg.checks.push({
-                id: id,
-                check: () => true,
-                action: () => {
-                    this.timerProcess(id);
+            .forEach((timer) => {
+                if (timer.id) {
+                    this.timerState(timer.id, true);
                 }
             });
+    }
+
+    // Выключение мелодии
+    stopSoundTimer(id: number) {
+        let timer = this.getTimer(id);
+        timerSound.stop(timer.song.id);
+    }
+
+    // Поиск запущенного таймера
+    issetStartedTimer(id: number) {
+        return timeCheck.cfg.checks.findIndex((item) => item.id === id) !== -1;
+    }
+
+    // Процесс выполнения таймера
+    timerProcess(id: number) {
+        // Обновить пройденное время таймера
+        this.updatePassed(this.getTimer(id));
+    }
+
+    // Получить данные таймера
+    getTimer(id: number) {
+        return this.$store.getters[`timer/findTimer`](id);
+    }
+
+    // Добавить таймер
+    startTimer(id: number) {
+        timeCheck.cfg.checks.push({
+            id: id,
+            check: () => true,
+            action: () => {
+                this.timerProcess(id);
+            }
+        });
+
+        // обновление
+        timeCheck.update();
+    }
+
+    // Удаление таймера
+    removeStartedTimer(id: number) {
+        if (this.issetStartedTimer(id)) {
+            timeCheck.cfg.checks.splice(
+                timeCheck.cfg.checks.findIndex((item) => item.id === id),
+                1
+            );
 
             // обновление
             timeCheck.update();
         }
+    }
 
-        // Удаление таймера
-        removeStartedTimer(id: number) {
-            if (this.issetStartedTimer(id)) {
-                timeCheck.cfg.checks.splice(
-                    timeCheck.cfg.checks.findIndex((item: Timer) => item.id === id),
-                    1
-                );
+    // Тумблер
+    toggleTimer(id: number) {
+        this.timerState(id, !this.issetStartedTimer(id));
+    }
 
-                // обновление
-                timeCheck.update();
-            }
-        }
+    // Смена состояния таймера
+    timerState(id: number, state: boolean) {
+        state
+            ? this.startTimer(id) // Включить таймер
+            : this.removeStartedTimer(id); // Отключить таймер
 
-        // Тумблер
-        toggleTimer(id: number) {
-            this.timerState(id, !this.issetStartedTimer(id));
-        }
+        // Установка активности
+        this.changeActivity({id, isActive: state});
+    }
 
-        // Смена состояния таймера
-        timerState(id: number, state: boolean) {
-            state
-                ? this.startTimer(id) // Включить таймер
-                : this.removeStartedTimer(id); // Отключить таймер
+    // Открыть окно
+    openModal(timerId: number | null = null) {
+        this.modalTimerId = timerId;
+        this.isShowModal = true;
+    }
 
-            // Установка активности
-            this.changeActivity({id, isActive: state});
-        }
-
-        // Открыть окно
-        openModal(timerId = null) {
-            this.modalTimerId = timerId;
-            this.isShowModal = true;
-        }
-
-        // Сохранение таймера
-        save(data) {
-            this.saveTimer(data);
-            this.$root.$emit(`closeModal`);
-        }
-};
+    // Сохранение таймера
+    save(data: SaveData) {
+        this.saveTimer(data);
+        EventBus.$emit(`closeModal`);
+    }
+}
 </script>
